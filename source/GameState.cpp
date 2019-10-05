@@ -214,6 +214,7 @@ namespace state
   {
     displayData.timer = timer;
     displayData.screenShake = screenShake;
+    displayData.heat = wasps.front()->gun->getHeat();
     for (auto &waspSegment : waspSegments)
       displayData.colors.emplace_back(ColorInfo{waspSegment.position - waspSegment.radius,
 						waspSegment.position + waspSegment.radius,

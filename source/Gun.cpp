@@ -15,9 +15,9 @@ namespace guns
       {
 	if (toHot)
 	  return;
-	if (!(++counter %= (1 + 10 / (heat / 12 + 1))))
+	if (!(++counter %= (1 + 10 / (heat / 24 + 1))))
 	  {
-	    heat += 10 / (heat / 12 + 1) + 2;
+	    heat += 10 / (heat / 24 + 1) + 2;
 	    if (heat >= 240)
 	      toHot = true;
 	    dir += claws::vect<float, 2u>(float(rand() & 3) - 1.5f, float(rand() & 3) - 1.5f) * 0.03f;
@@ -27,9 +27,14 @@ namespace guns
 
       virtual void update() override final
       {
-	toHot &= heat > 10;
+	toHot &= heat > 24;
 	heat -= !!heat + toHot;
       }
+
+      virtual float getHeat() override final
+      {
+	return float(heat) / 240.0f;
+      }      
     };
     return new Nothing();
   } 

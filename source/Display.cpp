@@ -314,11 +314,12 @@ void Display::renderRotatedAnims(std::vector<RotatedAnimInfo> const &rotatedAnim
 }
 
 
-void Display::renderHud(float bigWaspSize, uint32_t score, std::string const &strTime, float timer)
+void Display::renderHud(float bigWaspSize, uint32_t score, float heat, std::string const &strTime, float timer)
 {
   renderText("  Size  : " + std::to_string(uint32_t(bigWaspSize * 1000.0f)), 400, {0.05f, 0.05f}, {1.0f, 0.855f}, {1.0f, 1.0f, 1.0f});
   renderText("  Hps   : " + std::to_string(666), 400, {0.05f, 0.05f}, {1.0f, 0.755f}, {1.0f, 1.0f, 1.0f});
-  renderText("  Score : " + std::to_string(score), 400, {0.05f, 0.05f}, {1.0f, 0.655f}, {1.0f, 1.0f, 1.0f});
+  //renderText("  Score : " + std::to_string(score), 400, {0.05f, 0.05f}, {1.0f, 0.655f}, {1.0f, 1.0f, 1.0f});
+  renderText("  Gun heat : " + std::to_string(int(heat * 100.0f)) + "%", 400, {0.05f, 0.05f}, {1.0f, 0.655f}, {1.0f, 1.0f, 1.0f});
   renderText("  Time  : " + strTime, 400, {0.05f, 0.05f}, {1.0f, 0.555f}, {1.0f, 1.0f, 1.0f});
   auto secondTime((uint32_t(timer) * Logic::getTickTime().count()) / 1000000);
   std::string inGameTime;
@@ -375,7 +376,7 @@ void Display::render(DisplayData const &data)
     renderColors(data.colors);
   // renderColors({{-dim, claws::vect<float, 2u>(-1.0f, 1.0f), claws::vect<float, 4u>{0.0f, 0.0f, 0.0f, 1.0f}},
   // 		{dim, claws::vect<float, 2u>(1.0f, -1.0f), claws::vect<float, 4u>{0.0f, 0.0f, 0.0f, 1.0f}}});
-  //renderHud(666.0f, 666.0f, data.stringedTime, data.timer);
+  renderHud(666.0f, 666.0f, data.heat, data.stringedTime, data.timer);
   if (data.gameOverHud)
     renderGameOver(666.0f, data.stringedTime, data.win);
   if (data.tuto)
