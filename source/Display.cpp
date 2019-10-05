@@ -375,7 +375,7 @@ void Display::render(DisplayData const &data)
     renderColors(data.colors);
   // renderColors({{-dim, claws::vect<float, 2u>(-1.0f, 1.0f), claws::vect<float, 4u>{0.0f, 0.0f, 0.0f, 1.0f}},
   // 		{dim, claws::vect<float, 2u>(1.0f, -1.0f), claws::vect<float, 4u>{0.0f, 0.0f, 0.0f, 1.0f}}});
-  renderHud(666.0f, 666.0f, data.stringedTime, data.timer);
+  //renderHud(666.0f, 666.0f, data.stringedTime, data.timer);
   if (data.gameOverHud)
     renderGameOver(666.0f, data.stringedTime, data.win);
   if (data.tuto)

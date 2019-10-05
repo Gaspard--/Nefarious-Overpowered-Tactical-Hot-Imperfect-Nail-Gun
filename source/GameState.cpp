@@ -17,7 +17,7 @@ namespace state
 				0.05f));
     wasps.emplace_back(new Wasp(*this,
 				claws::vect<float, 2u>{0.0f, 0.0f},
-				0.0f,
+				1.0f,
 				0.05f));
     wasps.emplace_back(new Wasp(*this,
 				claws::vect<float, 2u>{-0.3f, 0.0f},
@@ -127,7 +127,7 @@ namespace state
 
 	      if (waspSegment.radius * waspSegment.radius > diff.length2())
 		{
-		  waspSegment.speed += nail.speed * 0.03f;
+		  waspSegment.speed += nail.speed * 0.09f;
 		  nail.timer = 0;
 		}
 	    }
