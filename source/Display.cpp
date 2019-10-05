@@ -143,7 +143,7 @@ void Display::renderBack(float timer)
 	for (uint32_t j(0u); j != 2; ++j)
 	  data[i * 4 + j] = (corner[i * 2 + j] - (1.0f - corner[i * 2 + j]));
 	data[i * 4 + 2] = (corner[i * 2]);
-	data[i * 4 + 3] = (corner[i * 2 + 1]);
+	data[i * 4 + 3] = (corner[i * 2 + 1]) + timer;
       }
     glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float), data.data(), GL_STATIC_DRAW);
     opengl::setUniform(dim, "dim", textureContext.program);
@@ -314,11 +314,12 @@ void Display::renderRotatedAnims(std::vector<RotatedAnimInfo> const &rotatedAnim
 }
 
 
-void Display::renderHud(float bigWaspSize, uint32_t score, std::string const &strTime, float timer)
+void Display::renderHud(float bigWaspSize, uint32_t score, float heat, std::string const &strTime, float timer)
 {
   renderText("  Size  : " + std::to_string(uint32_t(bigWaspSize * 1000.0f)), 400, {0.05f, 0.05f}, {1.0f, 0.855f}, {1.0f, 1.0f, 1.0f});
   renderText("  Hps   : " + std::to_string(666), 400, {0.05f, 0.05f}, {1.0f, 0.755f}, {1.0f, 1.0f, 1.0f});
-  renderText("  Score : " + std::to_string(score), 400, {0.05f, 0.05f}, {1.0f, 0.655f}, {1.0f, 1.0f, 1.0f});
+  //renderText("  Score : " + std::to_string(score), 400, {0.05f, 0.05f}, {1.0f, 0.655f}, {1.0f, 1.0f, 1.0f});
+  renderText("  Gun heat : " + std::to_string(int(heat * 100.0f)) + "%", 400, {0.05f, 0.05f}, {1.0f, 0.655f}, {1.0f, 1.0f, 1.0f});
   renderText("  Time  : " + strTime, 400, {0.05f, 0.05f}, {1.0f, 0.555f}, {1.0f, 1.0f, 1.0f});
   auto secondTime((uint32_t(timer) * Logic::getTickTime().count()) / 1000000);
   std::string inGameTime;
@@ -363,7 +364,7 @@ void Display::render(DisplayData const &data)
   //do final render here
   glClearColor(0.0f, 0.2f, 0.2f, 0.0f);
   glClear(GL_COLOR_BUFFER_BIT);
-  renderBack((data.timer + data.screenShake * sin(data.screenShake) * 2.0f) * 0.003f);
+  renderBack((data.screenShake * sin(data.screenShake) * 2.0f) * 0.003f);
   renderColors({{claws::vect<float, 2u>(-1.0f, 1.0f), claws::vect<float, 2u>(1.0f, -1.0f), claws::vect<float, 4u>{data.screenShake * 0.01f, data.screenShake * 0.01f, 0.04f, 0.8f}}});
   for (size_t i(0u); i < data.anims.size(); ++i)
     if (!data.anims[i].empty())
@@ -375,7 +376,7 @@ void Display::render(DisplayData const &data)
     renderColors(data.colors);
   // renderColors({{-dim, claws::vect<float, 2u>(-1.0f, 1.0f), claws::vect<float, 4u>{0.0f, 0.0f, 0.0f, 1.0f}},
   // 		{dim, claws::vect<float, 2u>(1.0f, -1.0f), claws::vect<float, 4u>{0.0f, 0.0f, 0.0f, 1.0f}}});
-  //renderHud(666.0f, 666.0f, data.stringedTime, data.timer);
+  renderHud(666.0f, 666.0f, data.heat, data.stringedTime, data.timer);
   if (data.gameOverHud)
     renderGameOver(666.0f, data.stringedTime, data.win);
   if (data.tuto)

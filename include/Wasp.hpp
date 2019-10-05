@@ -31,6 +31,7 @@ public:
 private:
   uint32_t flyPower{0};
   uint32_t jumpCooldown{0};
+public:
   std::unique_ptr<Gun> gun;
 
 public:

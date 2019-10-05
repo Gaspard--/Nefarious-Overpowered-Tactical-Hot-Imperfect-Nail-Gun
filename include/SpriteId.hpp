@@ -18,7 +18,6 @@ enum class SpriteId : uint32_t
    Back,
    DeadFellows,
    Tuto,
-   SpriteCount,
    Empty,
    Wall,
    Ground,
@@ -27,4 +26,6 @@ enum class SpriteId : uint32_t
    DownClosedWall,
    RightClosedWall,
    LeftClosedWall,
+   Nail,
+   SpriteCount
   };
