@@ -47,6 +47,22 @@ inline Animation getAnimation()
       return loadAnim("resources/Boss.bmp", 1);
     case SpriteId::Tuto:
       return loadAnim("resources/tuto.bmp", 1);
+    case SpriteId::Empty:
+      return loadAnim("resources/empty.bmp", 1);
+    case SpriteId::Wall:
+      return loadAnim("resources/Wall.bmp", 1);
+    case SpriteId::Ground:
+      return loadAnim("resources/Ground.bmp", 1);
+    case SpriteId::Ceil:
+      return loadAnim("resources/ceil.bmp", 1);
+    case SpriteId::UpClosedWall:
+      return loadAnim("resources/upClosedWall.bmp", 1);
+    case SpriteId::DownClosedWall:
+      return loadAnim("resources/downClosedWall.bmp", 1);
+    case SpriteId::LeftClosedWall:
+      return loadAnim("resources/leftClosedWall.bmp", 1);
+    case SpriteId::RightClosedWall:
+      return loadAnim("resources/rightClosedWall.bmp", 1);
     default:
       assert("missing animation definition");
     }

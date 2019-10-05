@@ -18,6 +18,13 @@ enum class SpriteId : uint32_t
    Back,
    DeadFellows,
    Tuto,
-   SpriteCount
+   SpriteCount,
+   Empty,
+   Wall,
+   Ground,
+   Ceil,
+   UpClosedWall,
+   DownClosedWall,
+   RightClosedWall,
+   LeftClosedWall,
   };
-

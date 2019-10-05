@@ -8,12 +8,12 @@ enum class TileId : uint32_t
   {
    Empty,
    Wall,
+   Ground,
+   Ceil,
    UpClosedWall,
    DownClosedWall,
    RightClosedWall,
    LeftClosedWall,
-   Ground,
-   Ceil,
   };
 
 class MapManager
@@ -27,6 +27,7 @@ class MapManager
   claws::vect<int, 2> winSize;
 
   void generateChunk(uint32_t leftExp, uint32_t rightExp, uint32_t upExp, uint32_t downExp);
+  void initTestMap();
 
 public:
 
