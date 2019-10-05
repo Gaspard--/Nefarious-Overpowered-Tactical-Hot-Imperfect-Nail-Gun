@@ -11,6 +11,8 @@
 class Wasp;
 class WaspSegment;
 class Nail;
+struct WaspSegmentNailer;
+struct WaspToWaspNailer;
 
 namespace state
 {
@@ -29,12 +31,15 @@ namespace state
     bool won{false};
 
     bool firing{false};
+    bool eating{false};
     bool up{false};
     float right{0.0f};
     MapManager map;
 
     std::vector<WaspSegment> waspSegments;
     std::vector<Nail> nails;
+    std::vector<WaspSegmentNailer> waspSegmentNailers;
+    std::vector<WaspToWaspNailer> waspToWaspNailers;
     std::vector<std::unique_ptr<Wasp>> wasps;
   public:
     GameState();

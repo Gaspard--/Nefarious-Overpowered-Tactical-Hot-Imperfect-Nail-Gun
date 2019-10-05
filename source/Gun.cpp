@@ -22,7 +22,7 @@ namespace guns
 	      toHot = true;
 	    dir += claws::vect<float, 2u>(float(rand() & 3) - 1.5f, float(rand() & 3) - 1.5f) * 0.03f;
 	    gameState.addNail(position + dir * (float(rand() & 7) * 0.1f) * 0.06f, dir * 0.06f, wasp);
-	    gameState.screenShake = 0.1f;
+	    gameState.screenShake = std::max(0.03f, gameState.screenShake);
 	  }
       }
 

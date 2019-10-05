@@ -3,6 +3,7 @@
 #include <claws/container/vect.hpp>
 #include <memory>
 #include <array>
+#include <vector>
 
 class Gun;
 class Wasp;
@@ -12,12 +13,21 @@ namespace state
   class GameState;
 }
 
+enum class Part
+  {
+   head,
+   body,
+   abdomen
+  };
+
 struct WaspSegment
 {
   claws::vect<float, 2u> position;
   claws::vect<float, 2u> speed;
   float radius;
+  Part part;
   Wasp *wasp;
+  bool disableCollision{false};
 
   void update() noexcept;
 };
@@ -25,8 +35,11 @@ struct WaspSegment
 class Wasp
 {
 private:
+  std::vector<uint32_t> victims;
   std::array<uint32_t, 3u> waspSegments;
+  bool dead{false};
 public:
+  bool eating{false};
   float direction;
 private:
   uint32_t flyPower{0};
@@ -63,4 +76,10 @@ public:
   void fly(state::GameState &) noexcept;
   void fire(state::GameState &gamestate, claws::vect<float, 2u> target);
   void pickUpGun(std::unique_ptr<Gun> &&gun);
+  void swallow(state::GameState &gameState, uint32_t index);
+
+  bool canBeRemoved() const noexcept
+  {
+    return dead;
+  }
 };

@@ -7,23 +7,35 @@
 #include <iostream>
 #include <algorithm>
 
+struct WaspSegmentNailer
+{
+  claws::vect<float, 2u> position;
+  uint32_t waspSegmentId;
+};
+
+struct WaspToWaspNailer
+{
+  uint32_t waspSegmentId0;
+  uint32_t waspSegmentId1;
+};
+
 namespace state
 {
+
   GameState::GameState()
     : map({1920, 1080})
   {
     wasps.emplace_back(new Wasp(*this,
 				claws::vect<float, 2u>{0.3f, 0.0f},
 				1.0f,
-				0.05f));
-    wasps.emplace_back(new Wasp(*this,
-				claws::vect<float, 2u>{0.0f, 0.0f},
-				1.0f,
-				0.05f));
-    wasps.emplace_back(new Wasp(*this,
-				claws::vect<float, 2u>{-0.3f, 0.0f},
-				-1.0f,
-				0.05f));
+				0.03f));
+    for (float i = 0.0f; i < 15.5f; ++i)
+      {
+	wasps.emplace_back(new Wasp(*this,
+				    claws::vect<float, 2u>{0.3f * i, 1.0f},
+				    1.0f,
+				    0.03f));
+      }
     wasps.front()->pickUpGun(std::unique_ptr<Gun>(guns::makeNothing()));
   }
 
@@ -58,23 +70,46 @@ namespace state
     if (right != 0.0f)
       (player->direction *= 0.7f) += right * 0.3f;
     if (firing)
-      {
-	player->fire(*this, target);
-      }
+      player->fire(*this, target);
+    player->eating = eating;
     for (auto it = wasps.begin() + 1; it != wasps.end(); ++it)
       {
-	// (*it)->fly(*this);
+	if (getWaspSegment((*it)->getBody()).position[1] < getWaspSegment(player->getBody()).position[1])
+	  (*it)->fly(*this);
 	(*it)->fire(*this, getWaspSegment(wasps.front()->getBody()).position);
       }
     for (auto &waspSegment : waspSegments)
       waspSegment.update();
     for (auto &nail : nails)
       nail.update();
-    nails.erase(std::remove_if(nails.begin(), nails.end(),
-			       [](auto const &nail)
+    for (auto &waspSegmentNailer : waspSegmentNailers)
+      {
+	WaspSegment &waspSegment(getWaspSegment(waspSegmentNailer.waspSegmentId));
+
+	waspSegment.speed = {0.0f, 0.0f};
+	waspSegment.position = waspSegmentNailer.position;
+      }
+    for (auto &waspToWaspNailer : waspToWaspNailers)
+      {
+	WaspSegment &waspSegment0(getWaspSegment(waspToWaspNailer.waspSegmentId0));
+	WaspSegment &waspSegment1(getWaspSegment(waspToWaspNailer.waspSegmentId1));
+
+
+	auto diff(waspSegment0.position - waspSegment1.position);
+	auto dir(diff.normalized());
+	auto len(std::sqrt(diff.length2()));
+	auto speedDiff(dir.scalar(waspSegment0.speed - waspSegment1.speed));
+	auto springSize((waspSegment0.radius + waspSegment1.radius) * 0.08f);
+
+	waspSegment0.speed -= dir * ((len - springSize) * 0.1f + speedDiff * 0.07f);
+	waspSegment1.speed += dir * ((len - springSize) * 0.1f + speedDiff * 0.07f);
+      }
+
+    wasps.erase(std::remove_if(wasps.begin() + 1, wasps.end(),
+			       [](auto const &wasp)
 			       {
-				 return nail.canBeRemoved();
-			       }), nails.end());
+				 return wasp->canBeRemoved();
+			       }), wasps.end());
 
     // do collistion
     {
@@ -84,6 +119,8 @@ namespace state
       for (uint32_t i = 0; i < waspSegments.size(); ++i)
 	{
 	  auto &waspSegment(waspSegments[i]);
+	  if (waspSegment.disableCollision)
+	    continue;
 
 	  claws::vect<int32_t, 2> min;
 	  claws::vect<int32_t, 2> max;
@@ -107,7 +144,21 @@ namespace state
 
 		    if ((otherWaspSegment.radius + waspSegment.radius) * (otherWaspSegment.radius + waspSegment.radius) > diff.length2())
 		      {
-			if ((otherWaspSegment.speed - waspSegment.speed).scalar(diff) < 0)
+			bool skipCollision = false;
+			if (waspSegment.wasp && waspSegment.part == Part::head && waspSegment.wasp->eating)
+			  {
+			    if (waspSegment.radius > otherWaspSegment.radius)
+			      waspSegment.wasp->swallow(*this, index);
+			    skipCollision = true;
+			  }
+			if (otherWaspSegment.wasp && otherWaspSegment.part == Part::head && otherWaspSegment.wasp->eating)
+			  {
+			    if (otherWaspSegment.radius > waspSegment.radius)
+			      otherWaspSegment.wasp->swallow(*this, i);
+			    skipCollision = true;
+			  }
+			  
+			if (!skipCollision && (otherWaspSegment.speed - waspSegment.speed).scalar(diff) < 0)
 			  {
 			    otherWaspSegment.speed += diff / diff.length2() * 0.001f;
 			    waspSegment.speed -= diff / diff.length2() * 0.001f;
@@ -119,38 +170,84 @@ namespace state
 	}
       for (auto &nail : nails)
 	{
-	  claws::vect<int32_t, 2> tile;
+	  claws::vect<int32_t, 2> min;
+	  claws::vect<int32_t, 2> max;
 	  for (int j = 0; j < 2; ++j)
 	    {
-	      tile[j] = int32_t(std::floor((nail.position[j]) / gridSize));
+	      min[j] = int32_t(std::floor((nail.position[j] - nail.speed[j]) / gridSize));
+	      max[j] = int32_t(std::floor((nail.position[j]) / gridSize));
+	      if (min[j] > max[j])
+		std::swap(min[j], max[j]);
 	    }
-	  auto &output(waspPartIndexMap[uint32_t(tile[0]) + (size_t(tile[1]) << 32l)]);
+	  claws::vect<int32_t, 2> tile;
+	  for (tile[0] = min[0]; tile[0] <= max[0]; ++tile[0])
+	    for (tile[1] = min[1]; tile[1] <= max[1]; ++tile[1])
+	      {
+		auto &output(waspPartIndexMap[uint32_t(tile[0]) + (size_t(tile[1]) << 32l)]);
 
-	  for (auto &index : output)
-	    {
-	      auto &waspSegment(waspSegments[index]);
-	      if (waspSegment.wasp && waspSegment.wasp == nail.immune)
-		continue;
-	      auto diff(waspSegment.position - nail.position);
-
-	      if (waspSegment.radius * waspSegment.radius > diff.length2())
-		{
-		  waspSegment.speed += nail.speed * 0.09f;
-		  nail.timer = 0;
-		}
-	    }
-
+		for (auto &index : output)
+		  {
+		    auto &waspSegment(waspSegments[index]);
+		    if (waspSegment.wasp && waspSegment.wasp == nail.immune)
+		      continue;
+		    auto diff(waspSegment.position - nail.position);
+		    if (std::abs(diff.scalar(claws::vect<float, 2u>{nail.speed[1], -nail.speed[0]}.normalized())) > waspSegment.radius)
+		      continue;
+		    if (diff.scalar(nail.speed) > 0.0f && diff.length2() > waspSegment.radius * waspSegment.radius)
+		      continue;
+		    // note: -(-nail.speed) is +nail.speed
+		    if ((diff + nail.speed).scalar(nail.speed) < 0.0f && (nail.speed + diff).length2() > waspSegment.radius * waspSegment.radius)
+		      continue;
+		    
+		    if (~nail.waspSegmentStick)
+		      {
+			if (waspSegment.wasp && waspSegment.wasp != getWaspSegment(nail.waspSegmentStick).wasp)
+			  {
+			    waspToWaspNailers.emplace_back(WaspToWaspNailer{nail.waspSegmentStick, index});
+			    nail.timer = 0;
+			  }
+		      }
+		    else
+		      {
+			waspSegment.speed += nail.speed * 0.2f;
+			waspSegment.radius *= 0.95f;
+			nail.speed *= 0.8f;
+			nail.timer = std::min(nail.timer, 2u);
+			nail.waspSegmentStick = index;
+		      }
+		  }
+	      }
 	}
     }
 
+    // remove nails that are gone to avoid "passing through" effect
+    nails.erase(std::remove_if(nails.begin(), nails.end(),
+			       [](auto const &nail)
+			       {
+				 return nail.canBeRemoved();
+			       }), nails.end());
     // do terrain collision
     for (auto &waspSegment : waspSegments)
-      if (waspSegment.position[1] < waspSegment.radius) // stupid ground check for the moment
-	{
-	  waspSegment.position[1] = waspSegment.radius;
-	  waspSegment.speed[1] *= -1.0f;
-	}
+      for (int i = 0; i < 2; ++i)
+	if (waspSegment.position[i] + 0.5f < waspSegment.radius) // stupid ground check for the moment
+	  {
+	    waspSegment.position[i] = -0.5f + waspSegment.radius;
+	    waspSegment.speed[i] *= -0.9f;
+	  }
+    for (auto &nail : nails)
+      for (int i = 0; i < 2; ++i)
+	if (nail.position[i] + 0.5f < 0.0f) // stupid ground check for the moment
+	  {
+	    nail.position[i] = -0.5f;
+	    nail.timer = 0;
+	    if (~nail.waspSegmentStick)
+	      {
+		claws::vect<float, 2u> offset{0, 0};
 
+		offset[i] += getWaspSegment(nail.waspSegmentStick).radius;
+		waspSegmentNailers.emplace_back(WaspSegmentNailer{nail.position, nail.waspSegmentStick});
+	      }
+	  }
     if (false) // dead
       return GAME_OVER_STATE;
     else if (won)
@@ -185,6 +282,7 @@ namespace state
 			(input.isKeyPressed(GLFW_KEY_A) || input.isKeyPressed(GLFW_KEY_LEFT)));
     up = (input.isKeyPressed(GLFW_KEY_W) || input.isKeyPressed(GLFW_KEY_UP));
     firing = (input.isMouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT));
+    eating = (input.isMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT) || input.isKeyPressed(GLFW_KEY_SPACE));
     // END (mouse + keyboard input)
 
     std::vector<claws::vect<float, 2>> axes = input.getJoystickAxes();
@@ -232,7 +330,7 @@ namespace state
       displayData.rotatedAnims[size_t(SpriteId::Nail)].emplace_back(RotatedAnimInfo{{nail.position - 0.02f,
 										     nail.position + 0.02f,
 										     0},
-										     -nail.speed});
+										    -nail.speed});
   }
 
 
