@@ -7,6 +7,9 @@
 
 #include "State.hpp"
 
+class Wasp;
+class WaspSegment;
+
 namespace state
 {
   class GameState : public State
@@ -21,8 +24,11 @@ namespace state
     float screenShake{0.0f};
     bool won{false};
 
+    std::vector<WaspSegment> waspSegments;
+    std::vector<std::unique_ptr<Wasp>> wasps;
   public:
     GameState();
+    ~GameState() noexcept;
     StateType update(unsigned int &time) override;
     void handleKey(GLFWwindow *window, input::Key key) override;
     void handleMouse(input::Input const &, GLFWwindow *window, input::Mouse mouse) override;
@@ -31,6 +37,11 @@ namespace state
     void getObjectsToRender(DisplayData &display) override;
 
     float getGameSpeed();
-  };
 
+    uint32_t addSegment(WaspSegment &&waspSegment);
+
+    WaspSegment &getWaspSegment(size_t index) noexcept;
+
+    WaspSegment const &getWaspSegment(size_t index) const noexcept;
+  };
 }

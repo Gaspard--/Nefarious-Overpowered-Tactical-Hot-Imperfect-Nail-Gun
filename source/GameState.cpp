@@ -1,27 +1,53 @@
 #include "GameState.hpp"
 #include "SoundHandler.hpp"
-// #include "SpriteManager.hpp"
+#include "Wasp.hpp"
 
 #include <iostream>
 #include <algorithm>
 
 namespace state
 {
-  static constexpr claws::vect<float, 2u> downRotation{0.0f, -1.0f};
-
   GameState::GameState()
   {
+    wasps.emplace_back(new Wasp(*this,
+				claws::vect<float, 2u>{0.3f, 0.0f},
+				1.0f,
+				0.05f));
+    wasps.emplace_back(new Wasp(*this,
+				claws::vect<float, 2u>{0.0f, 0.0f},
+				0.0f,
+				0.05f));
+    wasps.emplace_back(new Wasp(*this,
+				claws::vect<float, 2u>{-0.3f, 0.0f},
+				-1.0f,
+				0.05f));
   }
+
+  GameState::~GameState() noexcept = default;
 
   float GameState::getGameSpeed()
   {
     return gameSpeed;
   }
 
+  uint32_t GameState::addSegment(WaspSegment &&waspSegment)
+  {
+    waspSegments.emplace_back(waspSegment);
+    return uint32_t(waspSegments.size() - 1);
+  }
 
   StateType GameState::update(unsigned int &)
   {
     SoundHandler::getInstance().setGlobalPitch(getGameSpeed());
+
+    for (auto &wasp : wasps)
+      wasp->update(*this);
+    for (auto &waspSegment : waspSegments)
+      waspSegment.update();
+
+    // do collistion
+
+    // do terrain collision
 
     if (false) // dead
       return GAME_OVER_STATE;
@@ -81,5 +107,22 @@ namespace state
   {
     displayData.timer = timer;
     displayData.screenShake = screenShake;
+    for (auto &waspSegment : waspSegments)
+      displayData.colors.emplace_back(ColorInfo{waspSegment.position - waspSegment.radius,
+						waspSegment.position + waspSegment.radius,
+						claws::vect<float, 4u>{0.5f, 0.5f, 0.0f, 1.0f}});
+
+  }
+
+
+  WaspSegment &GameState::getWaspSegment(size_t index) noexcept
+  {
+    return waspSegments[index];
+  }
+
+
+  WaspSegment const &GameState::getWaspSegment(size_t index) const noexcept
+  {
+    return waspSegments[index];
   }
 }
