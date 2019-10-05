@@ -71,6 +71,7 @@ else()
 			${OPENGLES3_LIBRARY}
                         sfml-audio
                         freetype
+			pthread
   )
 endif(WIN32)
 
