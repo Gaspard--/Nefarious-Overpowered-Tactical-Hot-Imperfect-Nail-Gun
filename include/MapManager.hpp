@@ -19,23 +19,21 @@ enum class TileId : uint32_t
 class MapManager
 {
 
-  static const uint32_t tileSize{32};
+  static const uint32_t tileSize;
 
   std::vector<std::vector<TileId>> mapTiles;
-  uint32_t position{0};
-  int offset{0};
-  bool infinite;
-  claws::vect<unsigned, 2> winSize;
+  claws::vect<int, 2> position{0, 0};
+  claws::vect<int, 2> offset{0, 0};
+  claws::vect<int, 2> winSize;
 
-  void generateChunk(uint32_t sizeChunk);
+  void generateChunk(uint32_t leftExp, uint32_t rightExp, uint32_t upExp, uint32_t downExp);
 
 public:
 
-  MapManager(std::string const &fileName, claws::vect<unsigned, 2> const &winSize);     // load from file
-  MapManager(uint32_t height, claws::vect<unsigned, 2> const &winSize); // generate
+  MapManager(claws::vect<unsigned, 2> const &winSize);
 
-  void moveMap(int movementSize);
+  void moveMap(claws::vect<int, 2> const &movementSize);
 
-  void fillDisplayData(int &offset, std::vector<std::vector<TileId>> &drawMap) const;
+  void fillDisplayData(claws::vect<int, 2> &dispOffset, std::vector<std::vector<TileId>> &drawMap) const;
 
 };
