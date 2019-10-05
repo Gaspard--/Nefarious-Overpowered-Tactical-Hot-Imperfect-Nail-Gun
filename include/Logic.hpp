@@ -5,6 +5,7 @@
 # include <chrono>
 # include "Input.hpp"
 # include "State.hpp"
+# include "MapManager.hpp"
 
 class Display;
 

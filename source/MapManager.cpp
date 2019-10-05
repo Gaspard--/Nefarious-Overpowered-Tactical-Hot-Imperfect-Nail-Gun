@@ -170,7 +170,7 @@ void MapManager::generateChunk(uint32_t leftExp, uint32_t rightExp, uint32_t upE
   //
 }
 
-void MapManager::fillDisplayData(claws::vect<int, 2> &dispOffset, std::vector<std::vector<TileId>> &drawMap) const
+void MapManager::fillDisplayData(claws::vect<int, 2> &dispOffset, std::vector<std::vector<SpriteId>> &drawMap) const
 {
   dispOffset = offset;
   claws::vect<int, 2> drawPosition = position;
@@ -179,6 +179,34 @@ void MapManager::fillDisplayData(claws::vect<int, 2> &dispOffset, std::vector<st
   if (offset[1] > 0)
     drawPosition[1] -= 1;
   for (unsigned i = position[0] ; i != position[0] + (winSize[0] / tileSize) + 1 ; ++i)
-    for (unsigned j = position[1] ; i != position[1] + (winSize[1] / tileSize) + 1 ; ++j)
-      drawMap[i - position[0]][j - position[1]] = mapTiles[i][j];
+    for (unsigned j = position[1] ; i != position[1] + (winSize[1] / tileSize) + 1 ; ++j) {
+      SpriteId sprite;
+      switch (mapTiles[i][j]) {
+      case TileId::Wall:
+	sprite = SpriteId::Wall;
+	break;
+      case TileId::Empty:
+	sprite = SpriteId::Empty;
+	break;
+      case TileId::Ceil:
+	sprite = SpriteId::Ceil;
+	break;
+      case TileId::Ground:
+	sprite = SpriteId::Ground;
+	break;
+      case TileId::UpClosedWall:
+	sprite = SpriteId::UpClosedWall;
+	break;
+      case TileId::DownClosedWall:
+	sprite = SpriteId::DownClosedWall;
+	break;
+      case TileId::LeftClosedWall:
+	sprite = SpriteId::LeftClosedWall;
+	break;
+      case TileId::RightClosedWall:
+	sprite = SpriteId::RightClosedWall;
+	break;
+      }
+      drawMap[i - position[0]][j - position[1]] = sprite;
+    }
 }

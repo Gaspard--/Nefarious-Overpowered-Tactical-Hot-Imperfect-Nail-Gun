@@ -6,6 +6,7 @@
 #include <map>
 
 #include "State.hpp"
+#include "MapManager.hpp"
 
 class Wasp;
 class WaspSegment;
@@ -30,7 +31,8 @@ namespace state
     bool firing{false};
     bool up{false};
     float right{0.0f};
-    
+    MapManager map;
+
     std::vector<WaspSegment> waspSegments;
     std::vector<Nail> nails;
     std::vector<std::unique_ptr<Wasp>> wasps;

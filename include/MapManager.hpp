@@ -3,6 +3,7 @@
 # include <vector>
 # include <string>
 # include "claws/container/vect.hpp"
+# include "SpriteId.hpp"
 
 enum class TileId : uint32_t
   {
@@ -35,6 +36,6 @@ public:
 
   void moveMap(claws::vect<int, 2> const &movementSize);
 
-  void fillDisplayData(claws::vect<int, 2> &dispOffset, std::vector<std::vector<TileId>> &drawMap) const;
+  void fillDisplayData(claws::vect<int, 2> &dispOffset, std::vector<std::vector<SpriteId>> &drawMap) const;
 
 };

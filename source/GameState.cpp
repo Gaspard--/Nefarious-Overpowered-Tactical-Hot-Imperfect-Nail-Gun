@@ -10,6 +10,7 @@
 namespace state
 {
   GameState::GameState()
+    : map({1920, 1080})
   {
     wasps.emplace_back(new Wasp(*this,
 				claws::vect<float, 2u>{0.3f, 0.0f},
@@ -48,7 +49,7 @@ namespace state
       {
 	screenShake = std::max(screenShake - getGameSpeed(), 0.0f);
       }
-    
+
     for (auto &wasp : wasps)
       wasp->update(*this);
     getWaspSegment(player->getBody()).speed[0] += right * 0.005f;
@@ -74,7 +75,7 @@ namespace state
 			       {
 				 return nail.canBeRemoved();
 			       }), nails.end());
-			       
+
     // do collistion
     {
       constexpr static float gridSize = 1.0f;
@@ -138,7 +139,7 @@ namespace state
 		  nail.timer = 0;
 		}
 	    }
-	  
+
 	}
     }
 
@@ -209,7 +210,7 @@ namespace state
 	  jsButtonWasPressed[i] = false;
     }
 
-    
+
   }
 
   void GameState::addNail(claws::vect<float, 2u> position, claws::vect<float, 2u> speed, Wasp *wasp)
@@ -219,6 +220,7 @@ namespace state
 
   void GameState::getObjectsToRender(DisplayData &displayData)
   {
+    map.fillDisplayData(displayData.dispOffset, displayData.drawMap);
     displayData.timer = timer;
     displayData.screenShake = screenShake;
     displayData.heat = wasps.front()->gun->getHeat();

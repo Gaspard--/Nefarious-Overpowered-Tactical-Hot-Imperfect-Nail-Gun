@@ -35,4 +35,6 @@ struct DisplayData
   bool gameOverHud{false};
   bool win{false};
   bool tuto{false};
+  claws::vect<int, 2> dispOffset;
+  std::vector<std::vector<SpriteId>> drawMap;
 };
