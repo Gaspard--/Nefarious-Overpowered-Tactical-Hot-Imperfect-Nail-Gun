@@ -9,6 +9,7 @@
 
 class Wasp;
 class WaspSegment;
+class Nail;
 
 namespace state
 {
@@ -24,7 +25,12 @@ namespace state
     float screenShake{0.0f};
     bool won{false};
 
+    bool firing{false};
+    bool up{false};
+    float right{0.0f};
+    
     std::vector<WaspSegment> waspSegments;
+    std::vector<Nail> nails;
     std::vector<std::unique_ptr<Wasp>> wasps;
   public:
     GameState();
@@ -43,5 +49,7 @@ namespace state
     WaspSegment &getWaspSegment(size_t index) noexcept;
 
     WaspSegment const &getWaspSegment(size_t index) const noexcept;
+
+    void addNail(claws::vect<float, 2u> position, claws::vect<float, 2u> speed);
   };
 }

@@ -373,8 +373,8 @@ void Display::render(DisplayData const &data)
       renderRotatedAnims(data.rotatedAnims[i], SpriteId(i));
   if (!data.colors.empty())
     renderColors(data.colors);
-  renderColors({{-dim, claws::vect<float, 2u>(-1.0f, 1.0f), claws::vect<float, 4u>{0.0f, 0.0f, 0.0f, 1.0f}},
-		{dim, claws::vect<float, 2u>(1.0f, -1.0f), claws::vect<float, 4u>{0.0f, 0.0f, 0.0f, 1.0f}}});
+  // renderColors({{-dim, claws::vect<float, 2u>(-1.0f, 1.0f), claws::vect<float, 4u>{0.0f, 0.0f, 0.0f, 1.0f}},
+  // 		{dim, claws::vect<float, 2u>(1.0f, -1.0f), claws::vect<float, 4u>{0.0f, 0.0f, 0.0f, 1.0f}}});
   renderHud(666.0f, 666.0f, data.stringedTime, data.timer);
   if (data.gameOverHud)
     renderGameOver(666.0f, data.stringedTime, data.win);

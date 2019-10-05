@@ -19,12 +19,12 @@ Wasp::Wasp(state::GameState &gameState, claws::vect<float, 2u> position, float d
 }
 
 
-void Wasp::update(state::GameState &gamestate)
+void Wasp::update(state::GameState &gameState) noexcept
 {
   for (int i(0); i < 2; ++i)
     {
-      WaspSegment &waspSegment0(gamestate.getWaspSegment(waspSegments[i]));
-      WaspSegment &waspSegment1(gamestate.getWaspSegment(waspSegments[i + 1]));
+      WaspSegment &waspSegment0(gameState.getWaspSegment(waspSegments[i]));
+      WaspSegment &waspSegment1(gameState.getWaspSegment(waspSegments[i + 1]));
 
       auto diff(waspSegment0.position - waspSegment1.position + claws::vect<float, 2u>{direction * (waspSegment0.radius + waspSegment1.radius), 0.03f});
       auto dir(diff.normalized());
@@ -35,15 +35,43 @@ void Wasp::update(state::GameState &gamestate)
       waspSegment0.speed -= dir * ((len - springSize) * 0.1f + speedDiff * 0.07f);
       waspSegment1.speed += dir * ((len - springSize) * 0.1f + speedDiff * 0.07f);
     }
-  if ((++flapTimer %= 30) > 15)
+  jumpCooldown -= !!jumpCooldown;
+  if (gun)
     {
-      gamestate.getWaspSegment(getBody()).speed[1] += 0.007f;
+      gameState.getWaspSegment(getBody()).speed[1] += -0.0005f;
     }
+}
+
+void Wasp::fly(state::GameState &gameState) noexcept
+{
+  if (!jumpCooldown)
+    flyPower = 15;
+  if (!!flyPower)
+    {
+      jumpCooldown = 15;
+      --flyPower;
+      gameState.getWaspSegment(getBody()).speed[1] += 0.01f;
+    }
+}
+
+void Wasp::fire(state::GameState &gameState, claws::vect<float, 2u> target)
+{
+  if (gun)
+    {
+      auto dir((target - gameState.getWaspSegment(getBody()).position).normalized());
+
+      gun->fire(gameState, gameState.getWaspSegment(getBody()).position, dir);
+    }
+}
+
+void Wasp::pickUpGun(std::unique_ptr<Gun> &&gun)
+{
+  this->gun.swap(gun);
 }
 
 void WaspSegment::update() noexcept
 {
   position += speed;
-  speed *= 0.99f;
-  speed[1] += -0.001f;
+  speed *= 0.96f;
+  speed[1] += -0.0005f;
 }

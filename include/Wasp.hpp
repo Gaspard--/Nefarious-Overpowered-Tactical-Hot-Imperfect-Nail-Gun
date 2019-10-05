@@ -26,10 +26,13 @@ class Wasp
 {
 private:
   std::array<uint32_t, 3u> waspSegments;
+public:
   float direction;
+private:
+  uint32_t flyPower{0};
+  uint32_t jumpCooldown{0};
   std::unique_ptr<Gun> gun;
 
-  uint32_t flapTimer{0u};
 public:
   Wasp(state::GameState &gameState, claws::vect<float, 2u> position, float direction, float radius);
   Wasp(Wasp &&wasp) noexcept;
@@ -55,5 +58,8 @@ public:
     return waspSegments[2];
   }
 
-  void update(state::GameState &);
+  void update(state::GameState &) noexcept;
+  void fly(state::GameState &) noexcept;
+  void fire(state::GameState &gamestate, claws::vect<float, 2u> target);
+  void pickUpGun(std::unique_ptr<Gun> &&gun);
 };
