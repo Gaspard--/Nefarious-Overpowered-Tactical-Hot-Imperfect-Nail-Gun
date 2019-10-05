@@ -18,6 +18,7 @@ enum class SpriteId : uint32_t
    Back,
    DeadFellows,
    Tuto,
+   Nail,
    SpriteCount
   };
 

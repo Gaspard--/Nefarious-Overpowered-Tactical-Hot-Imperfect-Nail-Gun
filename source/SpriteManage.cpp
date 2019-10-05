@@ -47,6 +47,8 @@ inline Animation getAnimation()
       return loadAnim("resources/Boss.bmp", 1);
     case SpriteId::Tuto:
       return loadAnim("resources/tuto.bmp", 1);
+    case SpriteId::Nail:
+      return loadAnim("resources/nail.bmp", 1);
     default:
       assert("missing animation definition");
     }

@@ -22,7 +22,9 @@ namespace state
     std::array<bool, 1> jsButtonWasPressed;
     float gameSpeed{1.0f};
     float timer{0.0f};
+  public:
     float screenShake{0.0f};
+  private:
     bool won{false};
 
     bool firing{false};

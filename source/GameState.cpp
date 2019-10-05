@@ -44,6 +44,11 @@ namespace state
     SoundHandler::getInstance().setGlobalPitch(getGameSpeed());
     auto &player(wasps.front());
 
+    if (screenShake > 0)
+      {
+	screenShake = std::max(screenShake - getGameSpeed(), 0.0f);
+      }
+    
     for (auto &wasp : wasps)
       wasp->update(*this);
     getWaspSegment(player->getBody()).speed[0] += right * 0.005f;
@@ -52,7 +57,9 @@ namespace state
     if (right != 0.0f)
       (player->direction *= 0.7f) += right * 0.3f;
     if (firing)
-      player->fire(*this, target);
+      {
+	player->fire(*this, target);
+      }
     for (auto it = wasps.begin() + 1; it != wasps.end(); ++it)
       {
 	// (*it)->fly(*this);
@@ -220,9 +227,10 @@ namespace state
 						waspSegment.position + waspSegment.radius,
 						claws::vect<float, 4u>{0.5f, 0.5f, 0.0f, 1.0f}});
     for (auto &nail : nails)
-      displayData.colors.emplace_back(ColorInfo{nail.position - 0.01f,
-						nail.position + 0.01f,
-						claws::vect<float, 4u>{1.0f, 1.0f, 1.0f, 1.0f}});
+      displayData.rotatedAnims[size_t(SpriteId::Nail)].emplace_back(RotatedAnimInfo{{nail.position - 0.02f,
+										     nail.position + 0.02f,
+										     0},
+										     -nail.speed});
   }
 
 
