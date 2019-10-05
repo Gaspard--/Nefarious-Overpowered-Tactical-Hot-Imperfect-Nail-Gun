@@ -14,6 +14,8 @@ class Gun
 public:
   virtual ~Gun() noexcept = default;
   virtual void fire(state::GameState &gameState, Wasp *wasp, claws::vect<float, 2u> position, claws::vect<float, 2u> dir) = 0;
+  virtual void update() = 0;
+
 };
 
 

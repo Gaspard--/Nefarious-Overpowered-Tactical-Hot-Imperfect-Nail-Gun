@@ -39,6 +39,7 @@ void Wasp::update(state::GameState &gameState) noexcept
   if (gun)
     {
       gameState.getWaspSegment(getBody()).speed[1] += -0.004f;
+      gun->update();
     }
 }
 
