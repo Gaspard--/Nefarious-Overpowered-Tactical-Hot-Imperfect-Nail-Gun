@@ -50,6 +50,6 @@ namespace state
 
     WaspSegment const &getWaspSegment(size_t index) const noexcept;
 
-    void addNail(claws::vect<float, 2u> position, claws::vect<float, 2u> speed);
+    void addNail(claws::vect<float, 2u> position, claws::vect<float, 2u> speed, Wasp *wasp);
   };
 }

@@ -68,8 +68,72 @@ namespace state
 				 return nail.canBeRemoved();
 			       }), nails.end());
 			       
-
     // do collistion
+    {
+      constexpr static float gridSize = 1.0f;
+
+      std::unordered_map<size_t, std::vector<uint32_t>> waspPartIndexMap;
+      for (uint32_t i = 0; i < waspSegments.size(); ++i)
+	{
+	  auto &waspSegment(waspSegments[i]);
+
+	  claws::vect<int32_t, 2> min;
+	  claws::vect<int32_t, 2> max;
+	  for (int j = 0; j < 2; ++j)
+	    {
+	      min[j] = int32_t(std::floor((waspSegment.position[j] - waspSegment.radius) / gridSize));
+	      max[j] = int32_t(std::floor((waspSegment.position[j] + waspSegment.radius) / gridSize));
+	    }
+	  claws::vect<int32_t, 2> tile;
+	  for (tile[0] = min[0]; tile[0] <= max[0]; ++tile[0])
+	    for (tile[1] = min[1]; tile[1] <= max[1]; ++tile[1])
+	      {
+		auto &output(waspPartIndexMap[uint32_t(tile[0]) + (size_t(tile[1]) << 32l)]);
+
+		for (auto &index : output)
+		  {
+		    auto &otherWaspSegment(waspSegments[index]);
+		    if (otherWaspSegment.wasp && otherWaspSegment.wasp == waspSegment.wasp)
+		      continue;
+		    auto diff(otherWaspSegment.position - waspSegment.position);
+
+		    if ((otherWaspSegment.radius + waspSegment.radius) * (otherWaspSegment.radius + waspSegment.radius) > diff.length2())
+		      {
+			if ((otherWaspSegment.speed - waspSegment.speed).scalar(diff) < 0)
+			  {
+			    otherWaspSegment.speed += diff / diff.length2() * 0.001f;
+			    waspSegment.speed -= diff / diff.length2() * 0.001f;
+			  }
+		      }
+		  }
+		output.emplace_back(i);
+	      }
+	}
+      for (auto &nail : nails)
+	{
+	  claws::vect<int32_t, 2> tile;
+	  for (int j = 0; j < 2; ++j)
+	    {
+	      tile[j] = int32_t(std::floor((nail.position[j]) / gridSize));
+	    }
+	  auto &output(waspPartIndexMap[uint32_t(tile[0]) + (size_t(tile[1]) << 32l)]);
+
+	  for (auto &index : output)
+	    {
+	      auto &waspSegment(waspSegments[index]);
+	      if (waspSegment.wasp && waspSegment.wasp == nail.immune)
+		continue;
+	      auto diff(waspSegment.position - nail.position);
+
+	      if (waspSegment.radius * waspSegment.radius > diff.length2())
+		{
+		  waspSegment.speed += nail.speed * 0.03f;
+		  nail.timer = 0;
+		}
+	    }
+	  
+	}
+    }
 
     // do terrain collision
     for (auto &waspSegment : waspSegments)
@@ -141,9 +205,9 @@ namespace state
     
   }
 
-  void GameState::addNail(claws::vect<float, 2u> position, claws::vect<float, 2u> speed)
+  void GameState::addNail(claws::vect<float, 2u> position, claws::vect<float, 2u> speed, Wasp *wasp)
   {
-    nails.emplace_back(Nail{position, speed});
+    nails.emplace_back(Nail{position, speed, wasp});
   }
 
   void GameState::getObjectsToRender(DisplayData &displayData)

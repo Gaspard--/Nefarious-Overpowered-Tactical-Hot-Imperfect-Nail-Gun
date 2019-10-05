@@ -38,7 +38,7 @@ void Wasp::update(state::GameState &gameState) noexcept
   jumpCooldown -= !!jumpCooldown;
   if (gun)
     {
-      gameState.getWaspSegment(getBody()).speed[1] += -0.0005f;
+      gameState.getWaspSegment(getBody()).speed[1] += -0.004f;
     }
 }
 
@@ -60,7 +60,7 @@ void Wasp::fire(state::GameState &gameState, claws::vect<float, 2u> target)
     {
       auto dir((target - gameState.getWaspSegment(getBody()).position).normalized());
 
-      gun->fire(gameState, gameState.getWaspSegment(getBody()).position, dir);
+      gun->fire(gameState, this, gameState.getWaspSegment(getBody()).position, dir);
     }
 }
 
