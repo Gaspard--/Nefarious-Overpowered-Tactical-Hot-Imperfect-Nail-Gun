@@ -7,12 +7,12 @@ namespace guns
   {
     class Nothing : public Gun
     {
-      uint8_t heat;
-      uint8_t counter;
+      uint8_t heat{0};
+      uint8_t counter{0};
     public:
       virtual void fire(state::GameState &gameState, Wasp *wasp, claws::vect<float, 2u> position, claws::vect<float, 2u> dir) override final
       {
-	if (!(++counter %= (16 - heat)))
+	if (!(++counter %= (1 + 16 / (heat + 1))))
 	  {
 	    if (heat < 15)
 	      ++heat;
