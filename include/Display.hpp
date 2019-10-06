@@ -32,6 +32,7 @@ class Display
   void renderText(std::string const &txt, unsigned int fontSize, claws::vect<float, 2u> step, claws::vect<float, 2u> textPos, claws::vect<float, 3u> color);
   void renderHud(float bigWaspSize, uint32_t score, float heat, std::string const &strTime, float time);
   void renderGameOver(uint32_t score, std::string const &strTime, bool win);
+  void renderTerrain(DisplayData const &displayData);
   void renderDeadScreen(const std::vector<std::pair<std::string, std::string>>& fellows);
   void renderBack(float timer);
 

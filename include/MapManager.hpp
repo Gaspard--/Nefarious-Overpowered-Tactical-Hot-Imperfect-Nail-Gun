@@ -3,23 +3,10 @@
 # include <vector>
 # include <string>
 # include "claws/container/vect.hpp"
-# include "SpriteId.hpp"
-
-enum class TileId : uint32_t
-  {
-   Empty,
-   Wall,
-   Ground,
-   Ceil,
-   UpClosedWall,
-   DownClosedWall,
-   RightClosedWall,
-   LeftClosedWall,
-  };
+# include "TileId.hpp"
 
 class MapManager
 {
-
   static const uint32_t tileSize;
 
   std::vector<std::vector<TileId>> mapTiles;
@@ -36,6 +23,5 @@ public:
 
   void moveMap(claws::vect<int, 2> const &movementSize);
 
-  void fillDisplayData(claws::vect<int, 2> &dispOffset, std::vector<std::vector<SpriteId>> &drawMap) const;
-
+  void fillDisplayData(claws::vect<int, 2> &mapOffset, claws::vect<int, 2> &mapSize, std::vector<TileId> &drawMap) const;
 };

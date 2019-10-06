@@ -318,7 +318,7 @@ namespace state
 
   void GameState::getObjectsToRender(DisplayData &displayData)
   {
-    map.fillDisplayData(displayData.dispOffset, displayData.drawMap);
+    map.fillDisplayData(displayData.mapOffset, displayData.mapSize, displayData.mapData);
     displayData.timer = timer;
     displayData.screenShake = screenShake;
     displayData.heat = wasps.front()->gun->getHeat();

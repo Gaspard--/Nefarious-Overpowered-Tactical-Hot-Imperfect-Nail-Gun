@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SpriteManager.hpp"
+#include "TileId.hpp"
 
 #include <vector>
 
@@ -35,6 +36,7 @@ struct DisplayData
   bool gameOverHud{false};
   bool win{false};
   bool tuto{false};
-  claws::vect<int, 2> dispOffset;
-  std::vector<std::vector<SpriteId>> drawMap;
+  claws::vect<int, 2> mapOffset;
+  claws::vect<int, 2> mapSize;
+  std::vector<TileId> mapData;
 };

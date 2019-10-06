@@ -170,51 +170,21 @@ void MapManager::generateChunk(uint32_t leftExp, uint32_t rightExp, uint32_t upE
   //
 }
 
-void MapManager::fillDisplayData(claws::vect<int, 2> &dispOffset, std::vector<std::vector<SpriteId>> &drawMap) const
+void MapManager::fillDisplayData(claws::vect<int, 2> &mapOffset, claws::vect<int, 2> &mapSize, std::vector<TileId> &drawMap) const
 {
-  dispOffset = offset;
+  mapOffset = offset;
   claws::vect<int, 2> drawPosition = position;
   if (offset[0] > 0)
     drawPosition[0] -= 1;
   if (offset[1] > 0)
     drawPosition[1] -= 1;
-  drawMap.resize(((winSize[0] / tileSize) + 1));
-  for (unsigned i = position[0] ; i != position[0] + (winSize[0] / tileSize) + 1 ; ++i)
-    {
-      drawMap[i - position[0]].resize(((winSize[1] / tileSize) + 1));
-
-      for (unsigned j = position[1] ; j != position[1] + (winSize[1] / tileSize) + 1 ; ++j) {
-	SpriteId sprite;
-	if (i >= mapTiles.size() || j >= mapTiles[i].size())
-	  sprite = SpriteId::Wall;
-	else
-	  switch (mapTiles[i][j]) {
-	  case TileId::Wall:
-	    sprite = SpriteId::Wall;
-	    break;
-	  case TileId::Empty:
-	    sprite = SpriteId::Empty;
-	    break;
-	  case TileId::Ceil:
-	    sprite = SpriteId::Ceil;
-	    break;
-	  case TileId::Ground:
-	    sprite = SpriteId::Ground;
-	    break;
-	  case TileId::UpClosedWall:
-	    sprite = SpriteId::UpClosedWall;
-	    break;
-	  case TileId::DownClosedWall:
-	    sprite = SpriteId::DownClosedWall;
-	    break;
-	  case TileId::LeftClosedWall:
-	    sprite = SpriteId::LeftClosedWall;
-	    break;
-	  case TileId::RightClosedWall:
-	    sprite = SpriteId::RightClosedWall;
-	    break;
-	  }
-	drawMap[i - position[0]][j - position[1]] = sprite;
-      }
+  mapSize = winSize / tileSize + 1;
+  drawMap.resize(mapSize[0] * mapSize[1]);
+  for (unsigned i = position[0] ; i != position[0] + mapSize[0]; ++i)
+    for (unsigned j = position[1] ; j != position[1] + mapSize[1]; ++j) {
+      if (i >= mapTiles.size() || j >= mapTiles[i].size())
+	drawMap[i - position[0] + mapSize[0] * (j - position[1])] = TileId::Wall;
+      else
+	drawMap[i - position[0] + mapSize[0] * (j - position[1])] = mapTiles[i][j];
     }
 }
