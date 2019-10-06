@@ -12,6 +12,7 @@ enum class TileId : uint32_t
    DownClosedWall,
    RightClosedWall,
    LeftClosedWall,
+   size
   };
 
 namespace tile

@@ -23,7 +23,7 @@ public:
 
   void fillDisplayData(claws::vect<int, 2> &mapOffset, claws::vect<int, 2> const &mapSize, std::vector<TileId> &drawMap) const;
 
-  TileId getTile(claws::vect<float, 2u> pos) const noexcept;
+  TileId getTile(claws::vect<unsigned int, 2u> pos) const noexcept;
 
   template<class Func>
   void collision(claws::vect<float, 2> pos, claws::vect<float, 2> speed, float radius, Func &&func)
