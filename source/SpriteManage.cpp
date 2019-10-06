@@ -68,7 +68,9 @@ inline Animation getAnimation()
     case SpriteId::RightClosedWall:
       return loadAnim("resources/rightClosedWall.bmp", 1);
     case SpriteId::Nail:
-      return loadAnim("resources/nail.bmp", 1);
+      return loadAnim("resources/nail.png", 1);
+    case SpriteId::NailGun:
+      return loadAnim("resources/nail gun.png", 1);
     default:
       assert("missing animation definition");
     }

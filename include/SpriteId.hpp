@@ -27,5 +27,6 @@ enum class SpriteId : uint32_t
    RightClosedWall,
    LeftClosedWall,
    Nail,
+   NailGun,
    SpriteCount
   };
