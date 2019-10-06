@@ -28,13 +28,13 @@ namespace state
     wasps.emplace_back(new Wasp(*this,
 				claws::vect<float, 2u>{0.9f, 1.5f},
 				1.0f,
-				0.06f));
+				0.03f));
     for (float i = 0.0f; i < 5.5f; ++i)
       {
     	wasps.emplace_back(new Wasp(*this,
     				    claws::vect<float, 2u>{0.6f * i, 1.0f},
     				    1.0f,
-    				    0.02f * (2.0f + i)));
+    				    0.01f * (2.0f + i)));
       }
     wasps.front()->pickUpGun(std::unique_ptr<Gun>(guns::makeNothing()));
   }

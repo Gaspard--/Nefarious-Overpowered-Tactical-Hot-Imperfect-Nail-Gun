@@ -25,27 +25,30 @@ void Wasp::update(state::GameState &gameState) noexcept
   if (dead)
     return;
   {
-    constexpr std::array<float, 3u> const flow{{0.005f, 0.002f, 0.0002f}};
-    constexpr std::array<float, 3u> const ratio{{0.25f, 0.25f, 0.5f}};
+    constexpr std::array<float, 3u> const ratio{{0.25f, 0.15f, 0.6f}};
     std::array<float, 3u> mass;
+
+    inBelly *= 0.995f;
     float total(0.0f);
 
     for (int i(0); i < 3; ++i)
       {
-	mass[i] = std::pow(gameState.getWaspSegment(waspSegments[i]).radius, 3.0f);
+	if (~waspSegments[i])
+	  mass[i] = std::pow(gameState.getWaspSegment(waspSegments[i]).radius, 3.0f);
+	else
+	  mass[i] = 0.0f;
 	total += mass[i];
       }
-
-    float lastDiff((mass[2] - total * ratio[2]) * flow[2]);
-    mass[2] -= lastDiff;
-    total += lastDiff;
-    for (size_t i(0ul); i != 2; ++i)
+    total -= inBelly;
+    for (int i(0); i < 2; ++i)
       {
-	float diff((mass[i] - total * ratio[i]) * flow[i]);
-
-	mass[i + 1] += diff;
-	mass[i] += lastDiff * 0.5f - diff;
+	if (mass[i] && mass[i + 1])
+	  {
+	    mass[i + 1] -= (total * ratio[i] - mass[i]) * 0.04f;
+	    mass[i] += (total * ratio[i] - mass[i]) * 0.04f;
+	  }
       }
+    mass[2] = total - mass[1] - mass[0] + inBelly;
     for (int i(0); i < 3; ++i)
       {
 	gameState.getWaspSegment(waspSegments[i]).radius = std::pow(mass[i], 1.0f / 3.0f);
@@ -148,6 +151,7 @@ void Wasp::swallow(state::GameState &gameState, uint32_t index)
     return;
   gameState.getWaspSegment(getHead()).radius = std::pow(std::pow(gameState.getWaspSegment(getHead()).radius, 3.0f)
 							+ std::pow(gameState.getWaspSegment(index).radius, 3.0f), 1.0f / 3.0f);
+  inBelly += std::pow(gameState.getWaspSegment(index).radius, 3.0f);
   if (gameState.getWaspSegment(index).wasp)
     victims.emplace_back(index);
   // TODO: mark as unused
