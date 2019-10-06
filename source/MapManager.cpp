@@ -142,9 +142,9 @@ void MapManager::initTestMap()
       mapTiles[i].push_back(TileId(fakeMap[i][j] - '0'));
 }
 
-void MapManager::moveMap(claws::vect<int, 2> const &movementSize)
+void MapManager::setMapPosition(claws::vect<int, 2> const &position)
 {
-  position += movementSize;
+  this->position = position;
   if (position[0] + winSize[0] / tileSize > mapTiles[0].size())
     generateChunk(0, winSize[0] / tileSize * 2, 0, 0);
   else if (position[0] < 0)

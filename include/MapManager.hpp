@@ -18,7 +18,7 @@ class MapManager
 public:
 
   MapManager(claws::vect<float, 2> const &winSize);
-  void moveMap(claws::vect<int, 2> const &movementSize);
+  void setMapPosition(claws::vect<int, 2> const &position);
 
   void fillDisplayData(claws::vect<int, 2> &mapOffset, claws::vect<int, 2> &mapSize, std::vector<TileId> &drawMap) const;
 
@@ -43,7 +43,7 @@ public:
 						std::max(i * tileSize, std::min(i * tileSize + tileSize, pos[0])),
 						std::max(j * tileSize, std::min(j * tileSize + tileSize, pos[1])),
 	};
-	switch (mapTiles[position[0] + i][position[1] + j]) {
+	switch (mapTiles[i][j]) {
 	case TileId::Wall:
 	case TileId::Ground:
 	case TileId::Ceil:

@@ -57,6 +57,8 @@ namespace state
     SoundHandler::getInstance().setGlobalPitch(getGameSpeed());
     auto &player(wasps.front());
 
+    map.setMapPosition(claws::vect_cast<int>(-getOffset() / tileSize));
+
     if (screenShake > 0)
       {
 	screenShake = std::max(screenShake - getGameSpeed(), 0.0f);
@@ -351,6 +353,14 @@ namespace state
 	    displayData.anims[size_t(SpriteId::WaspBody)].emplace_back(AnimInfo{apply(waspSegment.position - invert * waspSegment.radius * 2.2f),
 										apply(waspSegment.position + invert * waspSegment.radius * 2.2f),
 										0});
+	    if (waspSegment.wasp && waspSegment.wasp->gun)
+	      {
+		displayData.rotatedAnims[size_t(SpriteId::NailGun)].emplace_back(RotatedAnimInfo{{apply(waspSegment.position - invert * 0.04f),
+												  apply(waspSegment.position + invert * 0.04f),
+												  0},
+												 (target / getZoom() - getOffset()) - waspSegment.position});
+		
+	      }
 	    break;
 	  case Part::abdomen:
 	    displayData.anims[size_t(SpriteId::WaspAbdomen)].emplace_back(AnimInfo{apply(waspSegment.position - invert * waspSegment.radius * 2.2f),
