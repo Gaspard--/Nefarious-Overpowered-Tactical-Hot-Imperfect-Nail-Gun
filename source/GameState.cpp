@@ -36,6 +36,8 @@ namespace state
 				    1.0f,
 				    0.03f * (1.0f + i)));
       }
+    guns.push_back(std::unique_ptr<Gun>(guns::makeNothing()));
+    guns.front()->position = {1.f, 1.f};
     wasps.front()->pickUpGun(std::unique_ptr<Gun>(guns::makeNothing()));
   }
 
@@ -166,7 +168,7 @@ namespace state
 			    auto rebound(dir * 2.0f * (otherWaspSegment.speed - waspSegment.speed).scalar(dir));
 			    auto waspSegmentWeight(std::pow(waspSegment.radius, 3.0f));
 			    auto otherWaspSegmentWeight(std::pow(otherWaspSegment.radius, 3.0f));
-			    
+
 			    waspSegment.speed += rebound * otherWaspSegmentWeight / (waspSegmentWeight + otherWaspSegmentWeight);
 			    otherWaspSegment.speed -= rebound * waspSegmentWeight / (waspSegmentWeight + otherWaspSegmentWeight);
 			    otherWaspSegment.speed += diff / diff.length2() * 0.0001f * otherWaspSegmentWeight / (waspSegmentWeight + otherWaspSegmentWeight);
@@ -359,7 +361,7 @@ namespace state
 												  apply(waspSegment.position + invert * 0.04f),
 												  0},
 												 (target / getZoom() - getOffset()) - waspSegment.position});
-		
+
 	      }
 	    break;
 	  case Part::abdomen:
@@ -369,6 +371,11 @@ namespace state
 	    break;
 	  }
       }
+    for (auto &gun : guns) {
+      displayData.anims[size_t(SpriteId::NailGun)].emplace_back(AnimInfo{apply(gun->position),
+									 apply(gun->position),
+									 0});
+    }
     for (auto &nail : nails)
       displayData.rotatedAnims[size_t(SpriteId::Nail)].emplace_back(RotatedAnimInfo{{apply(nail.position - 0.02f),
 										     apply(nail.position + 0.02f),
@@ -385,7 +392,7 @@ namespace state
   {
     return 0.05f / getWaspSegment(wasps.front()->getBody()).radius;
   }
-  
+
 
 
   WaspSegment &GameState::getWaspSegment(size_t index) noexcept

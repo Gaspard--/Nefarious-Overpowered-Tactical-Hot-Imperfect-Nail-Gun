@@ -35,8 +35,9 @@ namespace guns
       virtual float getHeat() override final
       {
 	return float(heat) / 240.0f;
-      }      
+      }
+
     };
     return new Nothing();
-  } 
+  }
 }

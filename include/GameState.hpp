@@ -7,6 +7,7 @@
 
 #include "State.hpp"
 #include "MapManager.hpp"
+#include "Gun.hpp"
 
 class Wasp;
 class WaspSegment;
@@ -41,6 +42,7 @@ namespace state
     std::vector<WaspSegmentNailer> waspSegmentNailers;
     std::vector<WaspToWaspNailer> waspToWaspNailers;
     std::vector<std::unique_ptr<Wasp>> wasps;
+    std::vector<std::unique_ptr<Gun>> guns;
   public:
     GameState();
     ~GameState() noexcept;
