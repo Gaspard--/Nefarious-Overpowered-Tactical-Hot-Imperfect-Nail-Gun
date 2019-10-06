@@ -28,13 +28,13 @@ namespace state
     wasps.emplace_back(new Wasp(*this,
 				claws::vect<float, 2u>{0.9f, 1.5f},
 				1.0f,
-				0.03f));
+				0.06f));
     for (float i = 0.0f; i < 5.5f; ++i)
       {
-	wasps.emplace_back(new Wasp(*this,
-				    claws::vect<float, 2u>{0.6f * i, 1.0f},
-				    1.0f,
-				    0.03f * (1.0f + i)));
+    	wasps.emplace_back(new Wasp(*this,
+    				    claws::vect<float, 2u>{0.6f * i, 1.0f},
+    				    1.0f,
+    				    0.02f * (2.0f + i)));
       }
     guns.push_back(std::unique_ptr<Gun>(guns::makeNothing()));
     guns.front()->position = {1.f, 1.f};
@@ -335,6 +335,7 @@ namespace state
 	       {
 		 return (position + offset) * zoom;
 	       });
+    displayData.mapSize = claws::vect_cast<int>(claws::vect<float, 2u>{4.0f, 2.0f} / getZoom() / tileSize) + 4;
     map.fillDisplayData(displayData.mapOffset, displayData.mapSize, displayData.mapData);
     displayData.offset = offset; // for terrain display, entities are pre-scaled
     displayData.zoom = zoom; // for terrain display, entities are pre-scaled

@@ -39,7 +39,7 @@ void Wasp::update(state::GameState &gameState) noexcept
       auto springSize((waspSegment0.radius + waspSegment1.radius) * 0.08f);
       auto strength(((len - springSize) * 0.07f + speedDiff * 0.1f));
 
-      if (strength >= 0.01f)
+      if (strength >= waspSegment0.radius + waspSegment1.radius)
 	{
 	  waspSegment0.speed += dir * strength * 4.0f;
 	  waspSegment1.speed -= dir * strength * 4.0f;

@@ -13,3 +13,13 @@ enum class TileId : uint32_t
    RightClosedWall,
    LeftClosedWall,
   };
+
+namespace tile
+{
+  constexpr bool isFullySolid(TileId tile)
+  {
+    return tile == TileId::Wall ||
+      tile == TileId::Ground ||
+      tile == TileId::Ceil;
+  }
+}

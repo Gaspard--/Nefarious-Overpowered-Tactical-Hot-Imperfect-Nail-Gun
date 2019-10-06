@@ -13,25 +13,25 @@ void MapManager::initTestMap()
   std::vector<std::string> fakeMap;
   fakeMap.push_back("1111111111111111111111111111111111111111");
   fakeMap.push_back("2000000000000000000000000000000000000003");
+  fakeMap.push_back("2100000000000000000000000000000000000003");
   fakeMap.push_back("2000000000000000000000000000000000000003");
   fakeMap.push_back("2000000000000000000000000000000000000003");
-  fakeMap.push_back("2000000000000000000000000000000000000003");
-  fakeMap.push_back("2000000000000000000000000000000000000003");
+  fakeMap.push_back("2200000000000000000000000000000000000003");
   fakeMap.push_back("2000000000000000040000000000000000000003");
   fakeMap.push_back("2000000000000000000000000000000000000003");
-  fakeMap.push_back("2000000000000000050000000000000000000003");
+  fakeMap.push_back("2300000000000000050000000000000000000003");
   fakeMap.push_back("2000000000000000000000000000000000000003");
   fakeMap.push_back("2000000000000000060000000000000000000003");
+  fakeMap.push_back("2400000000000000000000000000000000000003");
+  fakeMap.push_back("2400000000000000070000000000000000000003");
+  fakeMap.push_back("2400000000000000000000000000000000000003");
+  fakeMap.push_back("2400000000000000000000000000000000000003");
+  fakeMap.push_back("2666660000000000000000000000000000000003");
   fakeMap.push_back("2000000000000000000000000000000000000003");
-  fakeMap.push_back("2000000000000000070000000000000000000003");
+  fakeMap.push_back("2444444000000000000000000000000000000003");
+  fakeMap.push_back("2444444000000000000000000000000000000003");
   fakeMap.push_back("2000000000000000000000000000000000000003");
-  fakeMap.push_back("2000000000000000000000000000000000000003");
-  fakeMap.push_back("2000000000000000000000000000000000000003");
-  fakeMap.push_back("2000000000000000000000000000000000000003");
-  fakeMap.push_back("2000000000000000000000000000000000000003");
-  fakeMap.push_back("2000000000000000000000000000000000000003");
-  fakeMap.push_back("2000000000000000000000000000000000000003");
-  fakeMap.push_back("2000000000000000000000000000000000000003");
+  fakeMap.push_back("2777770000000000000000000000000000000003");
   fakeMap.push_back("2000000000000000000000000000000000000003");
   fakeMap.push_back("2000000000000000000000000000000000000003");
   fakeMap.push_back("2000000000000000000000000000000000000003");
@@ -142,6 +142,14 @@ void MapManager::initTestMap()
       mapTiles[i].push_back(TileId(fakeMap[i][j] - '0'));
 }
 
+TileId MapManager::getTile(claws::vect<float, 2u> pos) const noexcept
+{
+  if (pos[0] >= mapTiles.size() || pos[1] >= mapTiles[pos[0]].size())
+    return TileId::Wall;
+  else
+    return mapTiles[pos[0]][pos[1]];
+}
+
 void MapManager::setMapPosition(claws::vect<int, 2> const &position)
 {
   this->position = position;
@@ -166,16 +174,11 @@ void MapManager::generateChunk(uint32_t leftExp, uint32_t rightExp, uint32_t upE
   //
 }
 
-void MapManager::fillDisplayData(claws::vect<int, 2> &mapOffset, claws::vect<int, 2> &mapSize, std::vector<TileId> &drawMap) const
+void MapManager::fillDisplayData(claws::vect<int, 2> &mapOffset, claws::vect<int, 2> const &mapSize, std::vector<TileId> &drawMap) const
 {
-  mapOffset = position - claws::vect_cast<int>((winSize / tileSize) / 2.0f) - 1;
-  mapSize = winSize / tileSize + 3;
+  mapOffset = position - mapSize / 2 - 1;
   drawMap.resize(mapSize[0] * mapSize[1]);
   for (unsigned i = mapOffset[0] ; i != mapOffset[0] + mapSize[0]; ++i)
-    for (unsigned j = mapOffset[1] ; j != mapOffset[1] + mapSize[1]; ++j) {
-      if (i >= mapTiles.size() || j >= mapTiles[i].size())
-	drawMap[i - mapOffset[0] + mapSize[0] * (j - mapOffset[1])] = TileId::Wall;
-      else
-	drawMap[i - mapOffset[0] + mapSize[0] * (j - mapOffset[1])] = mapTiles[i][j];
-    }
+    for (unsigned j = mapOffset[1] ; j != mapOffset[1] + mapSize[1]; ++j)
+      drawMap[i - mapOffset[0] + mapSize[0] * (j - mapOffset[1])] = getTile({i, j});
 }
