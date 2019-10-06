@@ -1,6 +1,6 @@
 #pragma once
 
-constexpr static float tileSize = 0.1;
+constexpr static float tileSize = 0.1f;
 
 enum class TileId : uint32_t
   {

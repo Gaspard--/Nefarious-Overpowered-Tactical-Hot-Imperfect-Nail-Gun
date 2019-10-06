@@ -112,7 +112,6 @@ void Wasp::pickUpGun(std::unique_ptr<Gun> &&gun)
 
 void Wasp::swallow(state::GameState &gameState, uint32_t index)
 {
-  std::cout << "boo" << std::endl;
   if (dead)
     return;
   gameState.getWaspSegment(getHead()).radius = std::pow(std::pow(gameState.getWaspSegment(getHead()).radius, 3.0f)

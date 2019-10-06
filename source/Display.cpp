@@ -392,8 +392,11 @@ void Display::renderTerrain(DisplayData const &displayData)
       claws::vect<int, 2u> tilePos(i % displayData.mapSize[0], i / displayData.mapSize[0]);
 
       tilePos += displayData.mapOffset;
-      auto min(claws::vect_cast<float>(tilePos));
-      auto max(claws::vect_cast<float>(tilePos + 1));
+      auto pos(claws::vect_cast<float>(tilePos));
+      pos *= tileSize;
+      pos += displayData.offset;
+      auto min(pos * displayData.zoom);
+      auto max((pos + tileSize) * displayData.zoom);
       renderSingleAnim(AnimInfo{min, max, 0}, sprite);
     }
 }

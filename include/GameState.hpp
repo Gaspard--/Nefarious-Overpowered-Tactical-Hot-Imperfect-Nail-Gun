@@ -60,5 +60,8 @@ namespace state
     WaspSegment const &getWaspSegment(size_t index) const noexcept;
 
     void addNail(claws::vect<float, 2u> position, claws::vect<float, 2u> speed, Wasp *wasp);
+
+    claws::vect<float, 2u> getOffset() const noexcept;
+    float getZoom() const noexcept;
   };
 }

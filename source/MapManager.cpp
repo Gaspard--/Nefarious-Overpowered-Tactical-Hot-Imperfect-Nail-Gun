@@ -139,7 +139,7 @@ void MapManager::initTestMap()
   mapTiles.resize(fakeMap.size());
   for (unsigned i = 0 ; i < fakeMap.size() ; ++i)
     for (unsigned j = 0 ; j < fakeMap[i].size() ; ++j)
-      mapTiles[i].push_back((TileId)(fakeMap[i][j] - '0'));
+      mapTiles[i].push_back(TileId(fakeMap[i][j] - '0'));
 }
 
 void MapManager::moveMap(claws::vect<int, 2> const &movementSize)

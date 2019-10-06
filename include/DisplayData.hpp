@@ -36,6 +36,8 @@ struct DisplayData
   bool gameOverHud{false};
   bool win{false};
   bool tuto{false};
+  claws::vect<float, 2> offset;
+  float zoom;
   claws::vect<int, 2> mapOffset;
   claws::vect<int, 2> mapSize;
   std::vector<TileId> mapData;

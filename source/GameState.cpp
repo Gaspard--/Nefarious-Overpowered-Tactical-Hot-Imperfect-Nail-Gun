@@ -26,7 +26,7 @@ namespace state
     : map({2.0, 1.0})
   {
     wasps.emplace_back(new Wasp(*this,
-				claws::vect<float, 2u>{0.3f, 0.0f},
+				claws::vect<float, 2u>{0.9f, 0.0f},
 				1.0f,
 				0.03f));
     for (float i = 0.0f; i < 15.5f; ++i)
@@ -70,7 +70,7 @@ namespace state
     if (right != 0.0f)
       (player->direction *= 0.7f) += right * 0.3f;
     if (firing)
-      player->fire(*this, target);
+      player->fire(*this, (target / getZoom() - getOffset()));
     player->eating = eating;
     for (auto it = wasps.begin() + 1; it != wasps.end(); ++it)
       {
@@ -229,16 +229,16 @@ namespace state
     // do terrain collision
     for (auto &waspSegment : waspSegments)
       for (int i = 0; i < 2; ++i)
-	if (waspSegment.position[i] + 0.5f < waspSegment.radius) // stupid ground check for the moment
+	if (waspSegment.position[i] - 0.5f < waspSegment.radius) // stupid ground check for the moment
 	  {
-	    waspSegment.position[i] = -0.5f + waspSegment.radius;
+	    waspSegment.position[i] = +0.5f + waspSegment.radius;
 	    waspSegment.speed[i] *= -0.9f;
 	  }
     for (auto &nail : nails)
       for (int i = 0; i < 2; ++i)
-	if (nail.position[i] + 0.5f < 0.0f) // stupid ground check for the moment
+	if (nail.position[i] - 0.5f < 0.0f) // stupid ground check for the moment
 	  {
-	    nail.position[i] = -0.5f;
+	    nail.position[i] = +0.5f;
 	    nail.timer = 0;
 	    if (~nail.waspSegmentStick)
 	      {
@@ -318,20 +318,39 @@ namespace state
 
   void GameState::getObjectsToRender(DisplayData &displayData)
   {
+    auto offset(getOffset());
+    auto zoom(getZoom());
+    auto apply([&](claws::vect<float, 2u> position)
+	       {
+		 return (position + offset) * zoom;
+	       });
     map.fillDisplayData(displayData.mapOffset, displayData.mapSize, displayData.mapData);
+    displayData.offset = offset; // for terrain display, entities are pre-scaled
+    displayData.zoom = zoom; // for terrain display, entities are pre-scaled
     displayData.timer = timer;
     displayData.screenShake = screenShake;
     displayData.heat = wasps.front()->gun->getHeat();
     for (auto &waspSegment : waspSegments)
-      displayData.colors.emplace_back(ColorInfo{waspSegment.position - waspSegment.radius,
-						waspSegment.position + waspSegment.radius,
+      displayData.colors.emplace_back(ColorInfo{apply(waspSegment.position - waspSegment.radius),
+						apply(waspSegment.position + waspSegment.radius),
 						claws::vect<float, 4u>{0.5f, 0.5f, 0.0f, 1.0f}});
     for (auto &nail : nails)
-      displayData.rotatedAnims[size_t(SpriteId::Nail)].emplace_back(RotatedAnimInfo{{nail.position - 0.02f,
-										     nail.position + 0.02f,
+      displayData.rotatedAnims[size_t(SpriteId::Nail)].emplace_back(RotatedAnimInfo{{apply(nail.position - 0.02f),
+										     apply(nail.position + 0.02f),
 										     0},
 										    -nail.speed});
   }
+
+  claws::vect<float, 2u> GameState::getOffset() const noexcept
+  {
+    return -getWaspSegment(wasps.front()->getHead()).position;
+  }
+
+  float GameState::getZoom() const noexcept
+  {
+    return 0.05f / getWaspSegment(wasps.front()->getBody()).radius;
+  }
+  
 
 
   WaspSegment &GameState::getWaspSegment(size_t index) noexcept

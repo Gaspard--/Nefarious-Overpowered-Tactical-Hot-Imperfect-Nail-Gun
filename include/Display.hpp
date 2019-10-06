@@ -24,6 +24,8 @@ class Display
   claws::vect<float, 2u> dim{1.0f, 0.0f};
   SpriteManager spriteManager;
   FreeTypeLib fontHandler;
+  claws::vect<float, 2u> offset;
+  float zoom;
 
   void renderSingleAnim(AnimInfo const &anim, SpriteId spriteId);
   void renderColors(std::vector<ColorInfo> const &colorInfos);
