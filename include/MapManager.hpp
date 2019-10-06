@@ -11,7 +11,6 @@ class MapManager
 
   std::vector<std::vector<TileId>> mapTiles;
   claws::vect<int, 2> position{0, 0};
-  claws::vect<int, 2> offset{0, 0};
   claws::vect<int, 2> winSize;
 
   void generateChunk(uint32_t leftExp, uint32_t rightExp, uint32_t upExp, uint32_t downExp);

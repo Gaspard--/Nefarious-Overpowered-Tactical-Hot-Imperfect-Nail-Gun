@@ -146,9 +146,7 @@ void MapManager::initTestMap()
 
 void MapManager::moveMap(claws::vect<int, 2> const &movementSize)
 {
-  offset += movementSize;
-  position += offset / tileSize;
-  offset = offset % tileSize;
+  position += movementSize;
   if (position[0] + winSize[0] / tileSize > mapTiles[0].size())
     generateChunk(0, winSize[0] / tileSize * 2, 0, 0);
   else if (position[0] < 0)
@@ -172,12 +170,7 @@ void MapManager::generateChunk(uint32_t leftExp, uint32_t rightExp, uint32_t upE
 
 void MapManager::fillDisplayData(claws::vect<int, 2> &mapOffset, claws::vect<int, 2> &mapSize, std::vector<TileId> &drawMap) const
 {
-  mapOffset = offset;
-  claws::vect<int, 2> drawPosition = position;
-  if (offset[0] > 0)
-    drawPosition[0] -= 1;
-  if (offset[1] > 0)
-    drawPosition[1] -= 1;
+  mapOffset = position;
   mapSize = winSize / tileSize + 1;
   drawMap.resize(mapSize[0] * mapSize[1]);
   for (unsigned i = position[0] ; i != position[0] + mapSize[0]; ++i)
