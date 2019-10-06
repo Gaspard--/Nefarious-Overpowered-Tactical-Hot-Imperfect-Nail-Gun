@@ -228,6 +228,18 @@ namespace state
 			       }), nails.end());
     // do terrain collision
     for (auto &waspSegment : waspSegments)
+      {
+	map.collision(waspSegment.position, waspSegment.speed, waspSegment.radius, [&waspSegment](claws::vect<float, 2u> collisionPoint)
+										   {
+										     std::cout << collisionPoint[0] << "," << collisionPoint[1] << std::endl;
+										     auto diff(collisionPoint - waspSegment.position);
+										     auto dir(diff.normalized());
+
+										     waspSegment.speed -= dir * 2.0f * waspSegment.speed.scalar(dir);
+										   });
+      }
+    
+    for (auto &waspSegment : waspSegments)
       for (int i = 0; i < 2; ++i)
 	if (waspSegment.position[i] - 0.0f < waspSegment.radius) // stupid ground check for the moment
 	  {

@@ -29,14 +29,14 @@ public:
     claws::vect<unsigned, 2> baseCornerHitbox;
 
     if (baseCornerHitboxF[0] < 0)
-      baseCornerHitbox = 0;
+      baseCornerHitbox[0] = 0;
     else
-      baseCornerHitbox = (unsigned)baseCornerHitboxF[0];
+      baseCornerHitbox[0] = (unsigned)baseCornerHitboxF[0];
 
     if (baseCornerHitboxF[1] < 0)
-      baseCornerHitbox = 0;
+      baseCornerHitbox[1] = 0;
     else
-      baseCornerHitbox = (unsigned)baseCornerHitboxF[1];
+      baseCornerHitbox[1] = (unsigned)baseCornerHitboxF[1];
     for (unsigned i = baseCornerHitbox[0] ; i * tileSize - winSize[0] / 2.0 < pos[0] + radius ; ++i)
       for (unsigned j = baseCornerHitbox[1] ; j * tileSize - winSize[1] / 2.0 < pos[1] + radius ; ++j) {
 	claws::vect<float, 2> collisionPoint = {
