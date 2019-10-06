@@ -82,19 +82,33 @@ void Wasp::update(state::GameState &gameState) noexcept
 	total += mass[i];
       }
     total -= inBelly;
+    if (total < 0.0f)
+      {
+	dead = true;
+	return ;
+      }
     for (int i(0); i < 2; ++i)
       {
 	if (mass[i] && mass[i + 1])
 	  {
-	    mass[i + 1] -= (total * ratio[i] - mass[i]) * 0.04f;
-	    mass[i] += (total * ratio[i] - mass[i]) * 0.04f;
+	    auto delta((total * ratio[i] - mass[i]) * 0.04f);
+
+	    mass[i + 1] -= delta;
+	    mass[i] += delta;
 	  }
       }
     mass[2] = total - mass[1] - mass[0] + inBelly;
     for (int i(0); i < 3; ++i)
       {
 	if (~waspSegments[i])
-	  gameState.getWaspSegment(waspSegments[i]).setMass(mass[i]);
+	  {
+	    if (mass[i] < 0.0f)
+	      {
+		dead = true;
+		return ;
+	      }
+	    gameState.getWaspSegment(waspSegments[i]).setMass(mass[i]);
+	  }
       }
   }
 
@@ -152,7 +166,7 @@ void Wasp::update(state::GameState &gameState) noexcept
 	  float mass = victimPart.getMass();
 
 	  float eaten = mass * 0.1f;
-	  if (victimPart.radius < head.radius * 0.1f) {
+	  if (victimPart.radius < 0.001f) {
 	    eaten = mass;
 	    gameState.removeWaspSegment(victim);
 	  }

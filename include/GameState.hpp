@@ -70,5 +70,9 @@ namespace state
 
     claws::vect<float, 2u> getOffset() const noexcept;
     float getZoom() const noexcept;
+
+    void ai();
+    void terrainCheck();
+    void collisionCheck();
   };
 }

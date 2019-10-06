@@ -420,8 +420,8 @@ void Display::renderTerrain(DisplayData const &displayData)
 	  {
 	    for (uint32_t j(0u); j != 2; ++j)
 	      data[i * 4 + j] = (max[j] * corner[i * 2 + j] + min[j] * (1.0f - corner[i * 2 + j]));
-	    data[i * 4 + 2] = (corner[i * 2]);
-	    data[i * 4 + 3] = (corner[i * 2 + 1] + float(x2 - x));
+	    data[i * 4 + 2] = (corner[i * 2] * float(x2 - x));
+	    data[i * 4 + 3] = (corner[i * 2 + 1]);
 	  }
 	glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float), data.data(), GL_STATIC_DRAW);
 	opengl::setUniform(dim, "dim", textureContext.program);
@@ -438,7 +438,7 @@ void Display::render(DisplayData const &data)
 {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   //do final render here
-  glClearColor(0.0f, 0.2f, 0.2f, 0.0f);
+  glClearColor(0.3f, 0.2f, 0.2f, 0.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   //renderBack((data.screenShake * sin(data.screenShake) * 2.0f) * 0.003f);
   renderTerrain(data);

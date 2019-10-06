@@ -25,8 +25,8 @@ namespace guns
 	    heat += 10 / (heat / 24 + 1) + 2;
 	    if (heat >= 240)
 	      toHot = true;
-	    dir += claws::vect<float, 2u>(float(rand() & 3) - 1.5f, float(rand() & 3) - 1.5f) * 0.03f;
-	    gameState.addNail(position + dir * (float(rand() & 7) * 0.1f) * 0.06f, dir * 0.06f, wasp);
+	    dir += claws::vect<float, 2u>(float(rand() & 3) - 1.5f, float(rand() & 3) - 1.5f) * 0.01f;
+	    gameState.addNail(position, dir * 0.06f, wasp);
 	    gameState.screenShake = std::max(0.03f, gameState.screenShake);
 	  }
 	return true;

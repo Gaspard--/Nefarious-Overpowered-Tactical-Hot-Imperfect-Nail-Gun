@@ -43,7 +43,8 @@ struct WaspSegment
   }
 };
 
-void doSprint(WaspSegment &a, WaspSegment &b) noexcept;
+claws::vect<float, 2u> springForce(claws::vect<float, 2u> diff, claws::vect<float, 2u> speedDiff, float springSize) noexcept;
+void applyForce(WaspSegment &a, WaspSegment &b, claws::vect<float, 2u> force) noexcept;
 
 class Wasp
 {

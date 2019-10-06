@@ -54,9 +54,9 @@ inline Animation getAnimation()
     case SpriteId::Empty:
       return loadAnim("resources/empty.bmp", 1);
     case SpriteId::Wall:
-      return loadAnim("resources/Wall.bmp", 1);
+      return loadAnim("resources/wall.png", 1);
     case SpriteId::Ground:
-      return loadAnim("resources/Ground.bmp", 1);
+      return loadAnim("resources/ground.png", 1);
     case SpriteId::Ceil:
       return loadAnim("resources/ceil.bmp", 1);
     case SpriteId::UpClosedWall:

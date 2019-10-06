@@ -86,7 +86,9 @@ public:
 	{
 	  claws::vect<float, 2> collisionPoint{float(i), float(j)};
 
-	  if (tile::isFullySolid(getTile({i, j})) && (pos - collisionPoint).length2() < (nearest ? (pos - *nearest).length2() : radius * radius))
+	  if (tile::isFullySolid(getTile({i - (speed[0] < 0.0f),
+					  j - (speed[0] < 0.0f)})) &&
+	    (pos - collisionPoint).length2() < (nearest ? (pos - *nearest).length2() : radius * radius))
 	    nearest = collisionPoint;
 	}
       }
