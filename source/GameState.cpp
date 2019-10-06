@@ -23,7 +23,7 @@ namespace state
 {
 
   GameState::GameState()
-    : map({2.0, 1.0})
+    : map({2.0f, 1.0f})
   {
     wasps.emplace_back(new Wasp(*this,
 				claws::vect<float, 2u>{0.9f, 1.5f},

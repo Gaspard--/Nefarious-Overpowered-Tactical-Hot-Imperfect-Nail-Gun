@@ -81,8 +81,8 @@ public:
 
     for (int i = 0; i < 2; ++i)
       baseCornerHitbox[i] = unsigned(std::max(baseCornerHitboxF[i], 0.0f));
-    for (unsigned i = baseCornerHitbox[0] ; i * tileSize < pos[0] + radius ; ++i)
-      for (unsigned j = baseCornerHitbox[1] ; j * tileSize < pos[1] + radius ; ++j) {
+    for (unsigned i = baseCornerHitbox[0]; float(i) * tileSize < pos[0] + radius ; ++i)
+      for (unsigned j = baseCornerHitbox[1]; float(j) * tileSize < pos[1] + radius ; ++j) {
 	{
 	  claws::vect<float, 2> collisionPoint{float(i), float(j)};
 

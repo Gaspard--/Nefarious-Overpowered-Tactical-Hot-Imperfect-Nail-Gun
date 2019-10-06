@@ -24,6 +24,34 @@ void Wasp::update(state::GameState &gameState) noexcept
 {
   if (dead)
     return;
+  {
+    constexpr std::array<float, 3u> const flow{{0.005f, 0.002f, 0.0002f}};
+    constexpr std::array<float, 3u> const ratio{{0.25f, 0.25f, 0.5f}};
+    std::array<float, 3u> mass;
+    float total(0.0f);
+
+    for (int i(0); i < 3; ++i)
+      {
+	mass[i] = std::pow(gameState.getWaspSegment(waspSegments[i]).radius, 3.0f);
+	total += mass[i];
+      }
+    
+    float lastDiff((mass[2] - total * ratio[2]) * flow[2]);
+    mass[2] -= lastDiff;
+    total += lastDiff;
+    for (size_t i(0ul); i != 2; ++i)
+      {
+	float diff((mass[i] - total * ratio[i]) * flow[i]);
+
+	mass[i + 1] += diff;
+	mass[i] += lastDiff * 0.5f - diff;
+      }
+    for (int i(0); i < 3; ++i)
+      {
+	gameState.getWaspSegment(waspSegments[i]).radius = std::pow(mass[i], 1.0f / 3.0f);
+      }
+  }
+  
   
   for (int i(0); i < 2; ++i)
     {
@@ -41,8 +69,8 @@ void Wasp::update(state::GameState &gameState) noexcept
 
       if (strength >= waspSegment0.radius + waspSegment1.radius)
 	{
-	  waspSegment0.speed += dir * strength * 4.0f;
-	  waspSegment1.speed -= dir * strength * 4.0f;
+	  waspSegment0.speed += dir * strength * 9.0f;
+	  waspSegment1.speed -= dir * strength * 9.0f;
 	  gameState.getWaspSegment(waspSegments[i * 2]).wasp = nullptr;
 	  waspSegments[i * 2] = ~0u;
 	}
