@@ -1,12 +1,16 @@
 #include "SpriteManager.hpp"
 #include "opengl/load_image.hpp"
+#include "loaders/load_image.hpp"
 
 #include <cassert>
 #include <utility>
 
-inline Animation loadAnim(char const *path, uint32_t imageCount)
+inline Animation loadAnim(std::string const &path, uint32_t imageCount)
 {
-  return {opengl::loadTexture(path), imageCount};
+  if (path.substr(path.find_last_of(".") + 1) == "png")
+    return {loaders::loadTexture(path.c_str()), imageCount};
+  else
+    return {opengl::loadTexture(path.c_str()), imageCount};
 }
 
 template<size_t index>
@@ -17,15 +21,15 @@ inline Animation getAnimation()
     case SpriteId::SmolWaspIdle:
       return loadAnim("resources/testWasp.bmp", 4);
     case SpriteId::WaspAbdomen:
-      return loadAnim("resources/wasp abdomen mirrored.bmp", 1);
+      return loadAnim("resources/wasp abdomen.png", 1);
     case SpriteId::WaspBody:
-      return loadAnim("resources/wasp body.bmp", 1);
+      return loadAnim("resources/wasp body.png", 1);
     case SpriteId::WaspHead:
-      return loadAnim("resources/wasp head.bmp", 1);
+      return loadAnim("resources/wasp head.png", 1);
     case SpriteId::WaspLegs:
-      return loadAnim("resources/wasp legs.bmp", 1);
+      return loadAnim("resources/wasp legs.bmp", 1); // TODO
     case SpriteId::WaspWing:
-      return loadAnim("resources/wasp wing.bmp", 9);
+      return loadAnim("resources/wasp wings.png", 9);
     case SpriteId::Fireball :
       return loadAnim("resources/fireball-spriteSheet.bmp", 5);
     case SpriteId::Libeflux :

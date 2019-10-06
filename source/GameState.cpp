@@ -331,9 +331,27 @@ namespace state
     displayData.screenShake = screenShake;
     displayData.heat = wasps.front()->gun->getHeat();
     for (auto &waspSegment : waspSegments)
-      displayData.colors.emplace_back(ColorInfo{apply(waspSegment.position - waspSegment.radius),
-						apply(waspSegment.position + waspSegment.radius),
-						claws::vect<float, 4u>{0.5f, 0.5f, 0.0f, 1.0f}});
+      {
+	claws::vect<float, 2u> invert{waspSegment.wasp && waspSegment.wasp->direction < 0 ? 1.0f : -1.0f, 1.0f};
+	switch (waspSegment.part)
+	  {
+	  case Part::head:
+	    displayData.anims[size_t(SpriteId::WaspHead)].emplace_back(AnimInfo{apply(waspSegment.position - invert * waspSegment.radius * 2.2f),
+										apply(waspSegment.position + invert * waspSegment.radius * 2.2f),
+										0});
+	    break;
+	  case Part::body:
+	    displayData.anims[size_t(SpriteId::WaspBody)].emplace_back(AnimInfo{apply(waspSegment.position - invert * waspSegment.radius * 2.2f),
+										apply(waspSegment.position + invert * waspSegment.radius * 2.2f),
+										0});
+	    break;
+	  case Part::abdomen:
+	    displayData.anims[size_t(SpriteId::WaspAbdomen)].emplace_back(AnimInfo{apply(waspSegment.position - invert * waspSegment.radius * 2.2f),
+										apply(waspSegment.position + invert * waspSegment.radius * 2.2f),
+										0});
+	    break;
+	  }
+      }
     for (auto &nail : nails)
       displayData.rotatedAnims[size_t(SpriteId::Nail)].emplace_back(RotatedAnimInfo{{apply(nail.position - 0.02f),
 										     apply(nail.position + 0.02f),

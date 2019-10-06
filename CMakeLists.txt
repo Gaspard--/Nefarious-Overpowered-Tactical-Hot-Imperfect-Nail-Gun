@@ -49,6 +49,7 @@ if (WIN32)
 else()
   find_package(PkgConfig REQUIRED)
   find_package(Freetype REQUIRED)
+  find_package(PNG REQUIRED)
   pkg_search_module(GLFW REQUIRED glfw3)
 endif(WIN32)
 
@@ -56,7 +57,8 @@ include_directories(
   ${GLFW_INCLUDE_DIRS}
   ${HEADER_DIRECTORY}
   ${FREETYPE_INCLUDE_DIRS}
-  ${OPENGL_INCLUDE_DIR}
+  ${OPENGL_INCLUDE_DIRS}
+  ${PNG_INCLUDE_DIRS}
 )
 
 if (WIN32)
@@ -69,8 +71,9 @@ if (WIN32)
 else()
   target_link_libraries(${PROJECT_NAME}
 			${OPENGLES3_LIBRARY}
-                        sfml-audio
-                        freetype
+			${PNG_LIBRARIES}
+			sfml-audio
+			freetype
 			pthread
   )
 endif(WIN32)
