@@ -407,9 +407,9 @@ void Display::render(DisplayData const &data)
   //do final render here
   glClearColor(0.0f, 0.2f, 0.2f, 0.0f);
   glClear(GL_COLOR_BUFFER_BIT);
-  renderBack((data.screenShake * sin(data.screenShake) * 2.0f) * 0.003f);
+  //renderBack((data.screenShake * sin(data.screenShake) * 2.0f) * 0.003f);
   renderTerrain(data);
-  renderColors({{claws::vect<float, 2u>(-1.0f, 1.0f), claws::vect<float, 2u>(1.0f, -1.0f), claws::vect<float, 4u>{data.screenShake * 0.01f, data.screenShake * 0.01f, 0.04f, 0.8f}}});
+  //renderColors({{claws::vect<float, 2u>(-1.0f, 1.0f), claws::vect<float, 2u>(1.0f, -1.0f), claws::vect<float, 4u>{data.screenShake * 0.01f, data.screenShake * 0.01f, 0.04f, 0.8f}}});
   for (size_t i(0u); i < data.anims.size(); ++i)
     if (!data.anims[i].empty())
       renderAnims(data.anims[i], SpriteId(i));
@@ -427,7 +427,7 @@ void Display::render(DisplayData const &data)
     renderSingleAnim(AnimInfo{claws::vect<float, 2u>{-1.980f / 1.080f, -1.0f},
 			      claws::vect<float, 2u>{1.980f / 1.080f, 1.0f},
 			      0}, SpriteId::Tuto);
-    
+
 }
 
 void Display::resize(claws::vect<uint32_t, 2u> size)
