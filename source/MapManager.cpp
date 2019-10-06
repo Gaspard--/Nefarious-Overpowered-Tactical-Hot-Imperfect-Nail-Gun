@@ -168,14 +168,14 @@ void MapManager::generateChunk(uint32_t leftExp, uint32_t rightExp, uint32_t upE
 
 void MapManager::fillDisplayData(claws::vect<int, 2> &mapOffset, claws::vect<int, 2> &mapSize, std::vector<TileId> &drawMap) const
 {
-  mapOffset = position;
-  mapSize = winSize / tileSize + 1;
+  mapOffset = position - claws::vect_cast<int>((winSize / tileSize) / 2.0f) - 1;
+  mapSize = winSize / tileSize + 3;
   drawMap.resize(mapSize[0] * mapSize[1]);
-  for (unsigned i = position[0] ; i != position[0] + mapSize[0]; ++i)
-    for (unsigned j = position[1] ; j != position[1] + mapSize[1]; ++j) {
+  for (unsigned i = mapOffset[0] ; i != mapOffset[0] + mapSize[0]; ++i)
+    for (unsigned j = mapOffset[1] ; j != mapOffset[1] + mapSize[1]; ++j) {
       if (i >= mapTiles.size() || j >= mapTiles[i].size())
-	drawMap[i - position[0] + mapSize[0] * (j - position[1])] = TileId::Wall;
+	drawMap[i - mapOffset[0] + mapSize[0] * (j - mapOffset[1])] = TileId::Wall;
       else
-	drawMap[i - position[0] + mapSize[0] * (j - position[1])] = mapTiles[i][j];
+	drawMap[i - mapOffset[0] + mapSize[0] * (j - mapOffset[1])] = mapTiles[i][j];
     }
 }
