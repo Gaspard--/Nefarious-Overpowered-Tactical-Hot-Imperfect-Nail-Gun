@@ -35,7 +35,7 @@ void Wasp::update(state::GameState &gameState) noexcept
 	mass[i] = std::pow(gameState.getWaspSegment(waspSegments[i]).radius, 3.0f);
 	total += mass[i];
       }
-    
+
     float lastDiff((mass[2] - total * ratio[2]) * flow[2]);
     mass[2] -= lastDiff;
     total += lastDiff;
@@ -51,8 +51,8 @@ void Wasp::update(state::GameState &gameState) noexcept
 	gameState.getWaspSegment(waspSegments[i]).radius = std::pow(mass[i], 1.0f / 3.0f);
       }
   }
-  
-  
+
+
   for (int i(0); i < 2; ++i)
     {
       if (!~waspSegments[i * 2] || (!gameState.getWaspSegment(waspSegments[i * 2]).radius && !gameState.getWaspSegment(waspSegments[i * 2]).radius)) // relevant end segment detached, or both parts eaten
@@ -128,7 +128,10 @@ void Wasp::fire(state::GameState &gameState, claws::vect<float, 2u> target)
     {
       auto dir((target - gameState.getWaspSegment(getBody()).position).normalized());
 
-      gun->fire(gameState, this, gameState.getWaspSegment(getBody()).position, dir);
+      if (!gun->fire(gameState, this, gameState.getWaspSegment(getBody()).position, dir)) {
+	gun->position = gameState.getWaspSegment(getBody()).position;
+	gameState.looseGun(std::move(gun));
+      }
     }
 }
 

@@ -11,10 +11,10 @@ namespace guns
       uint8_t counter{0};
       bool toHot{false};
     public:
-      virtual void fire(state::GameState &gameState, Wasp *wasp, claws::vect<float, 2u> position, claws::vect<float, 2u> dir) override final
+      virtual bool fire(state::GameState &gameState, Wasp *wasp, claws::vect<float, 2u> position, claws::vect<float, 2u> dir) override final
       {
 	if (toHot)
-	  return;
+	  return false;
 	if (!(++counter %= (1 + 10 / (heat / 24 + 1))))
 	  {
 	    heat += 10 / (heat / 24 + 1) + 2;
@@ -24,6 +24,7 @@ namespace guns
 	    gameState.addNail(position + dir * (float(rand() & 7) * 0.1f) * 0.06f, dir * 0.06f, wasp);
 	    gameState.screenShake = std::max(0.03f, gameState.screenShake);
 	  }
+	return true;
       }
 
       virtual void update() override final

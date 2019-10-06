@@ -36,8 +36,6 @@ namespace state
     				    1.0f,
     				    0.02f * (2.0f + i)));
       }
-    guns.push_back(std::unique_ptr<Gun>(guns::makeNothing()));
-    guns.front()->position = {1.f, 1.f};
     wasps.front()->pickUpGun(std::unique_ptr<Gun>(guns::makeNothing()));
   }
 
@@ -68,6 +66,8 @@ namespace state
 
     for (auto &wasp : wasps)
       wasp->update(*this);
+    for (auto &gun : guns)
+      gun->update();
     getWaspSegment(player->getBody()).speed[0] += right * 0.005f;
     if (up)
       player->fly(*this);
@@ -374,8 +374,8 @@ namespace state
       }
     for (auto &gun : guns) {
       displayData.anims[size_t(SpriteId::NailGun)].emplace_back(AnimInfo{apply(gun->position),
-									 apply(gun->position),
-									 0});
+									 apply(gun->position + claws::vect<float, 2>{0.1f, 0.1f}),
+									  0});
     }
     for (auto &nail : nails)
       displayData.rotatedAnims[size_t(SpriteId::Nail)].emplace_back(RotatedAnimInfo{{apply(nail.position - 0.02f),
@@ -405,5 +405,10 @@ namespace state
   WaspSegment const &GameState::getWaspSegment(size_t index) const noexcept
   {
     return waspSegments[index];
+  }
+
+  void GameState::looseGun(std::unique_ptr<Gun> &&gun)
+  {
+    guns.push_back(std::move(gun));
   }
 }

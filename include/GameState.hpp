@@ -57,6 +57,8 @@ namespace state
 
     uint32_t addSegment(WaspSegment &&waspSegment);
 
+    void looseGun(std::unique_ptr<Gun> &&gun);
+
     WaspSegment &getWaspSegment(size_t index) noexcept;
 
     WaspSegment const &getWaspSegment(size_t index) const noexcept;
