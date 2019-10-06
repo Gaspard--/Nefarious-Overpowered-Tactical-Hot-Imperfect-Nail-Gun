@@ -215,7 +215,7 @@ namespace state
 			auto diff(collisionPoint - gun->position);
 			auto dir(diff.normalized());
 
-			gun->speed -= dir * 2.0f * gun->speed.scalar(dir);
+			gun->speed -= dir * 1.8f * gun->speed.scalar(dir);
 			gun->position = collisionPoint - dir * gun->radius;
 		      });
       }
@@ -234,6 +234,7 @@ namespace state
 
   StateType GameState::update(unsigned int &)
   {
+    timer += getGameSpeed();
     SoundHandler::getInstance().setGlobalPitch(getGameSpeed());
     auto &player(wasps.front());
 
@@ -420,8 +421,8 @@ namespace state
 										0});
 	    if (waspSegment.wasp && waspSegment.wasp->gun)
 	      {
-		displayData.rotatedAnims[size_t(SpriteId::NailGun)].emplace_back(RotatedAnimInfo{{apply(waspSegment.position - invert * 0.04f - invert * claws::vect<float, 2>{waspSegment.radius, 0.0f}),
-												  apply(waspSegment.position + invert * 0.04f - invert * claws::vect<float, 2>{waspSegment.radius, 0.0f}),
+		displayData.rotatedAnims[size_t(SpriteId::NailGun)].emplace_back(RotatedAnimInfo{{apply(waspSegment.position - invert * waspSegment.wasp->gun->radius - invert * claws::vect<float, 2>{waspSegment.radius, 0.0f}),
+												  apply(waspSegment.position + invert * waspSegment.wasp->gun->radius - invert * claws::vect<float, 2>{waspSegment.radius, 0.0f}),
 												  0},
 												 (target / getZoom() - getOffset()) - waspSegment.position});
 
@@ -436,9 +437,10 @@ namespace state
 	    assert(!"Unhandled wasp segment type ( ? ? ? )");
 	  }
       }
+    claws::vect<float, 2u> invert{std::cos(timer * 0.05f), 1.0f};
     for (auto &gun : guns) {
-      displayData.anims[size_t(SpriteId::NailGun)].emplace_back(AnimInfo{apply(gun->position - claws::vect<float, 2>{1.f, 1.f} * gun->radius),
-									 apply(gun->position + claws::vect<float, 2>{1.f, 1.f} * gun->radius),
+      displayData.anims[size_t(SpriteId::NailGun)].emplace_back(AnimInfo{apply(gun->position - invert * gun->radius),
+									 apply(gun->position + invert * gun->radius),
 									  0});
     }
     for (auto &nail : nails)
