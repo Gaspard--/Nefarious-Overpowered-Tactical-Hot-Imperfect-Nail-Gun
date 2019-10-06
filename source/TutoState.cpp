@@ -4,6 +4,7 @@ namespace state
 {
   StateType TutoState::update(unsigned int& time)
   {
+    (void)time;
     if (isSkipped)
       return GAME_STATE;
     return CONTINUE;

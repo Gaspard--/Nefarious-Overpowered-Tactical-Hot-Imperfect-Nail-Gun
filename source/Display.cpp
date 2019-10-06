@@ -316,6 +316,7 @@ void Display::renderRotatedAnims(std::vector<RotatedAnimInfo> const &rotatedAnim
 
 void Display::renderHud(float bigWaspSize, uint32_t score, float heat, std::string const &strTime, float timer)
 {
+  (void)score;
   renderText("  Size  : " + std::to_string(uint32_t(bigWaspSize * 1000.0f)), 400, {0.05f, 0.05f}, {1.0f, 0.855f}, {1.0f, 1.0f, 1.0f});
   renderText("  Hps   : " + std::to_string(666), 400, {0.05f, 0.05f}, {1.0f, 0.755f}, {1.0f, 1.0f, 1.0f});
   //renderText("  Score : " + std::to_string(score), 400, {0.05f, 0.05f}, {1.0f, 0.655f}, {1.0f, 1.0f, 1.0f});
@@ -360,7 +361,7 @@ void Display::renderDeadScreen(const std::vector<std::pair<std::string, std::str
 
 void Display::renderTerrain(DisplayData const &displayData)
 {
-  for (size_t i = 0; i != displayData.mapSize[0] * displayData.mapSize[1]; ++i)
+  for (long unsigned i = 0; i != displayData.mapSize[0] * displayData.mapSize[1]; ++i)
     {
       SpriteId sprite;
       switch (displayData.mapData[i]) {
@@ -387,6 +388,8 @@ void Display::renderTerrain(DisplayData const &displayData)
 	break;
       case TileId::RightClosedWall:
 	sprite = SpriteId::RightClosedWall;
+	break;
+      default:
 	break;
       }
       claws::vect<int, 2u> tilePos(i % displayData.mapSize[0], i / displayData.mapSize[0]);

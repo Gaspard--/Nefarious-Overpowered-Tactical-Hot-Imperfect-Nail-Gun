@@ -3,6 +3,7 @@
 # include <vector>
 # include <string>
 # include <algorithm>
+# include <optional>
 # include "claws/container/vect.hpp"
 # include "TileId.hpp"
 
@@ -38,7 +39,7 @@ public:
     for (int i = 0; i < 2; ++i)
       {
 	claws::vect<unsigned, 2u> tilePos;
-	      
+
 	tilePos[!i] = center[!i];
 	if (speed[i] > 0)
 	  for (unsigned j = center[i]; float(j) * tileSize < pos[i] + radius; ++j)
@@ -50,7 +51,7 @@ public:
 
 		  collisionPoint[i] = float(tilePos[i]) * tileSize;
 		  collisionPoint[!i] = pos[!i];
-		  
+
 		  func(collisionPoint);
 		  checkCorners = false;
 		}
