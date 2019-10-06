@@ -2,6 +2,7 @@
 
 # include <vector>
 # include <string>
+# include <algorithm>
 # include "claws/container/vect.hpp"
 # include "TileId.hpp"
 
@@ -22,8 +23,49 @@ public:
   void fillDisplayData(claws::vect<int, 2> &mapOffset, claws::vect<int, 2> &mapSize, std::vector<TileId> &drawMap) const;
 
   template<class Func>
-  void collision(claws::vect<float, 2> pos, float radius, Func &&func)
+  void collision(claws::vect<float, 2> pos, claws::vect<float, 2> speed, float radius, Func &&func)
   {
+    claws::vect<float, 2> baseCornerHitboxF = {(pos[0] - radius + winSize[0] / 2.0) / tileSize, (pos[1] - radius + winSize[1] / 2.0) / tileSize};
+    claws::vect<unsigned, 2> baseCornerHitbox;
+
+    if (baseCornerHitboxF[0] < 0)
+      baseCornerHitbox = 0;
+    else
+      baseCornerHitbox = (unsigned)baseCornerHitboxF[0];
+
+    if (baseCornerHitboxF[1] < 0)
+      baseCornerHitbox = 0;
+    else
+      baseCornerHitbox = (unsigned)baseCornerHitboxF[1];
+    for (unsigned i = baseCornerHitbox[0] ; i * tileSize - winSize[0] / 2.0 < pos[0] + radius ; ++i)
+      for (unsigned j = baseCornerHitbox[1] ; j * tileSize - winSize[1] / 2.0 < pos[1] + radius ; ++j) {
+	claws::vect<float, 2> collisionPoint = {
+						std::max(i * tileSize - winSize[0] / 2.0f, std::min(i * tileSize - winSize[0] / 2.0f + tileSize, pos[0])),
+						std::max(j * tileSize - winSize[1] / 2.0f, std::min(j * tileSize - winSize[1] / 2.0f + tileSize, pos[1])),
+	};
+	switch (mapTiles[position[0] + i][position[1] + j]) {
+	case TileId::Wall:
+	case TileId::Ground:
+	case TileId::Ceil:
+	  break;
+	case TileId::UpClosedWall:
+	  if (speed[1] < 0)
+	    break;
+	case TileId::DownClosedWall:
+	  if (speed[1] > 0)
+	    break;
+	case TileId::LeftClosedWall:
+	  if (speed[0] > 0)
+	    break;
+	case TileId::RightClosedWall:
+	  if (speed[0] < 0)
+	    break;
+	case TileId::Empty:
+	default:
+	  continue;
+	}
+	func(collisionPoint);
+      }
   }
 
 };
