@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <cassert>
 
 struct WaspSegmentNailer
 {
@@ -381,6 +382,8 @@ namespace state
 										   apply(waspSegment.position + invert * waspSegment.radius * 2.2f),
 										   0});
 	    break;
+	  default:
+	    assert(!"Unhandled wasp segment type ( ? ? ? )");
 	  }
       }
     for (auto &gun : guns) {

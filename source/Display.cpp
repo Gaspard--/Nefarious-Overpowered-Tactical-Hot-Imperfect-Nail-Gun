@@ -36,7 +36,6 @@ Display::Display(GLFWwindow &window)
   , bulletContext(contextFromFiles("bullet"))
   , fontHandler("./resources/FantasqueSansMono-Regular.ttf")
 {
-
   {
     Bind bind(textureContext);
 
@@ -361,45 +360,77 @@ void Display::renderDeadScreen(const std::vector<std::pair<std::string, std::str
 
 void Display::renderTerrain(DisplayData const &displayData)
 {
-  for (long unsigned i = 0; i != displayData.mapSize[0] * displayData.mapSize[1]; ++i)
+  for (int x = 0; x != displayData.mapSize[0] * displayData.mapSize[1]; ++x)
     {
+      int x2 = x + 1;
+      for (; (x2 % displayData.mapSize[0]) != 0; ++x2)
+	if (displayData.mapData[x2] != displayData.mapData[x])
+	  break;
       SpriteId sprite;
-      switch (displayData.mapData[i]) {
+      switch (displayData.mapData[x]) {
       case TileId::Wall:
-	sprite = SpriteId::Wall;
-	break;
+  	sprite = SpriteId::Wall;
+  	break;
       case TileId::Empty:
-	continue;
+  	continue;
       case TileId::Ceil:
-	sprite = SpriteId::Ceil;
-	break;
+  	sprite = SpriteId::Ceil;
+  	break;
       case TileId::Ground:
-	sprite = SpriteId::Ground;
-	break;
+  	sprite = SpriteId::Ground;
+  	break;
       case TileId::UpClosedWall:
-	sprite = SpriteId::UpClosedWall;
-	break;
+  	sprite = SpriteId::UpClosedWall;
+  	break;
       case TileId::DownClosedWall:
-	sprite = SpriteId::DownClosedWall;
-	break;
+  	sprite = SpriteId::DownClosedWall;
+  	break;
       case TileId::LeftClosedWall:
-	sprite = SpriteId::LeftClosedWall;
-	break;
+  	sprite = SpriteId::LeftClosedWall;
+  	break;
       case TileId::RightClosedWall:
-	sprite = SpriteId::RightClosedWall;
-	break;
+  	sprite = SpriteId::RightClosedWall;
+  	break;
       default:
-	break;
+  	break;
       }
-      claws::vect<int, 2u> tilePos(i % displayData.mapSize[0], i / displayData.mapSize[0]);
+      claws::vect<int, 2u> tilePos(x % displayData.mapSize[0], x / displayData.mapSize[0]);
 
       tilePos += displayData.mapOffset;
       auto pos(claws::vect_cast<float>(tilePos));
       pos *= tileSize;
       pos += displayData.offset;
       auto min(pos * displayData.zoom);
-      auto max((pos + tileSize) * displayData.zoom);
-      renderSingleAnim(AnimInfo{min, max, 0}, sprite);
+      auto max((pos + claws::vect<float, 2u>(float(x2 - x), 1.0f) * tileSize) * displayData.zoom);
+      {
+	Bind bind(textureContext);
+	  
+	glBindBuffer(GL_ARRAY_BUFFER, textureBuffer);
+
+	std::array<float, 6 * 4> data;
+
+	std::array<float, 12> corner{{0.0f, 0.0f,
+				      1.0f, 0.0f,
+				      0.0f, 1.0f,
+				      1.0f, 0.0f,
+				      0.0f, 1.0f,
+				      1.0f, 1.0f}};
+
+	for (uint32_t i(0u); i != 6; ++i)
+	  {
+	    for (uint32_t j(0u); j != 2; ++j)
+	      data[i * 4 + j] = (max[j] * corner[i * 2 + j] + min[j] * (1.0f - corner[i * 2 + j]));
+	    data[i * 4 + 2] = (corner[i * 2]);
+	    data[i * 4 + 3] = (corner[i * 2 + 1] + float(x2 - x));
+	  }
+	glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float), data.data(), GL_STATIC_DRAW);
+	opengl::setUniform(dim, "dim", textureContext.program);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, spriteManager[sprite].texture);
+	opengl::setUniform(0u, "tex", textureContext.program);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+      }
+      x = x2 - 1;
     }
 }
 

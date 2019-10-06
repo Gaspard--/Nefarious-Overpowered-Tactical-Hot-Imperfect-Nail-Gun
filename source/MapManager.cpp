@@ -142,7 +142,7 @@ void MapManager::initTestMap()
       mapTiles[i].push_back(TileId(fakeMap[i][j] - '0'));
 }
 
-TileId MapManager::getTile(claws::vect<float, 2u> pos) const noexcept
+TileId MapManager::getTile(claws::vect<unsigned int, 2u> pos) const noexcept
 {
   if (pos[0] >= mapTiles.size() || pos[1] >= mapTiles[pos[0]].size())
     return TileId::Wall;
