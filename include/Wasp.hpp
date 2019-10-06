@@ -44,6 +44,7 @@ public:
 private:
   uint32_t flyPower{0};
   uint32_t jumpCooldown{0};
+  float inBelly{0.0f};
 public:
   std::unique_ptr<Gun> gun;
 

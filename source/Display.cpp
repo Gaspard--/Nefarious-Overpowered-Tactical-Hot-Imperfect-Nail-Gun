@@ -369,8 +369,7 @@ void Display::renderTerrain(DisplayData const &displayData)
 	sprite = SpriteId::Wall;
 	break;
       case TileId::Empty:
-	sprite = SpriteId::Empty;
-	break;
+	continue;
       case TileId::Ceil:
 	sprite = SpriteId::Ceil;
 	break;
