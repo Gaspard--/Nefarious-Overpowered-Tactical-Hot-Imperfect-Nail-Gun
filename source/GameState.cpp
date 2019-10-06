@@ -340,7 +340,7 @@ namespace state
     displayData.zoom = zoom; // for terrain display, entities are pre-scaled
     displayData.timer = timer;
     displayData.screenShake = screenShake;
-    displayData.heat = wasps.front()->gun->getHeat();
+    displayData.heat = wasps.front()->gun ? wasps.front()->gun->getHeat() : 0.0f;
     for (auto &waspSegment : waspSegments)
       {
 	claws::vect<float, 2u> invert{waspSegment.wasp && waspSegment.wasp->direction < 0 ? 1.0f : -1.0f, 1.0f};
@@ -357,8 +357,8 @@ namespace state
 										0});
 	    if (waspSegment.wasp && waspSegment.wasp->gun)
 	      {
-		displayData.rotatedAnims[size_t(SpriteId::NailGun)].emplace_back(RotatedAnimInfo{{apply(waspSegment.position - invert * 0.04f),
-												  apply(waspSegment.position + invert * 0.04f),
+		displayData.rotatedAnims[size_t(SpriteId::NailGun)].emplace_back(RotatedAnimInfo{{apply(waspSegment.position - invert * 0.04f - invert * claws::vect<float, 2>{waspSegment.radius, 0.0f}),
+												  apply(waspSegment.position + invert * 0.04f - invert * claws::vect<float, 2>{waspSegment.radius, 0.0f}),
 												  0},
 												 (target / getZoom() - getOffset()) - waspSegment.position});
 
