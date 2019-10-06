@@ -11,6 +11,11 @@ namespace guns
       uint8_t counter{0};
       bool toHot{false};
     public:
+
+      Nothing() {
+	radius = 0.05f;
+      }
+
       virtual bool fire(state::GameState &gameState, Wasp *wasp, claws::vect<float, 2u> position, claws::vect<float, 2u> dir) override final
       {
 	if (toHot)
