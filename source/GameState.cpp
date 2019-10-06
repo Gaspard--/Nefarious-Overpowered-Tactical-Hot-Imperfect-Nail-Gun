@@ -229,16 +229,16 @@ namespace state
     // do terrain collision
     for (auto &waspSegment : waspSegments)
       for (int i = 0; i < 2; ++i)
-	if (waspSegment.position[i] - 0.5f < waspSegment.radius) // stupid ground check for the moment
+	if (waspSegment.position[i] - 0.0f < waspSegment.radius) // stupid ground check for the moment
 	  {
-	    waspSegment.position[i] = +0.5f + waspSegment.radius;
+	    waspSegment.position[i] = +0.0f + waspSegment.radius;
 	    waspSegment.speed[i] *= -0.9f;
 	  }
     for (auto &nail : nails)
       for (int i = 0; i < 2; ++i)
-	if (nail.position[i] - 0.5f < 0.0f) // stupid ground check for the moment
+	if (nail.position[i] - 0.0f < 0.0f) // stupid ground check for the moment
 	  {
-	    nail.position[i] = +0.5f;
+	    nail.position[i] = 0.0f;
 	    nail.timer = 0;
 	    if (~nail.waspSegmentStick)
 	      {
