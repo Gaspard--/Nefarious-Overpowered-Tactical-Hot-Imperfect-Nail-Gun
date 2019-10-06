@@ -36,6 +36,8 @@ namespace guns
       {
 	toHot &= heat > 24;
 	heat -= !!heat + toHot;
+	position += speed;
+	speed[1] -= 0.001f;
       }
 
       virtual float getHeat() override final

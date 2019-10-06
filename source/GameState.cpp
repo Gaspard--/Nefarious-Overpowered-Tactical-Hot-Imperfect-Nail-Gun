@@ -33,7 +33,7 @@ namespace state
     for (float i = 0.0f; i < 5.5f; ++i)
       {
     	wasps.emplace_back(new Wasp(*this,
-    				    claws::vect<float, 2u>{0.6f * i, 1.0f},
+    				    claws::vect<float, 2u>{0.6f * i + 2.0f, 1.0f},
     				    1.0f,
     				    0.01f * (2.0f + i)));
       }
@@ -71,7 +71,7 @@ namespace state
     for (auto gun = guns.begin() ; gun != guns.end() ; ++gun) {
       (*gun)->update();
       for (auto &wasp : wasps)
-	if ((*gun)->getHeat() < 1.f && ((*gun)->position - getWaspSegment(wasp->getBody()).position).length2() < pow((*gun)->radius + getWaspSegment(wasp->getBody()).radius, 2.0)) {
+	if ((*gun)->getHeat() < 0.1f && ((*gun)->position - getWaspSegment(wasp->getBody()).position).length2() < pow((*gun)->radius + getWaspSegment(wasp->getBody()).radius, 2.0)) {
 	  wasp->pickUpGun(std::move((*gun)));
 	  break;
 	}
@@ -80,19 +80,33 @@ namespace state
 	--gun;
       }
     }
-    getWaspSegment(player->getBody()).speed[0] += right * 0.005f;
-    if (up)
-      player->fly(*this);
-    if (right != 0.0f)
-      (player->direction *= 0.7f) += right * 0.3f;
-    if (firing)
-      player->fire(*this, (target / getZoom() - getOffset()));
-    player->eating = eating;
+    if (!player->canBeRemoved())
+      {
+	getWaspSegment(player->getBody()).speed[0] += right * 0.005f;
+	if (up)
+	  player->fly(*this);
+	if (right != 0.0f)
+	  (player->direction *= 0.7f) += right * 0.3f;
+	if (firing)
+	  player->fire(*this, (target / getZoom() - getOffset()));
+	player->eating = eating;
+      }
     for (auto it = wasps.begin() + 1; it != wasps.end(); ++it)
       {
-	if (getWaspSegment((*it)->getBody()).position[1] < getWaspSegment(player->getBody()).position[1] + 0.1f)
+	if ((*it)->canBeRemoved())
+	  continue;
+	if (getWaspSegment((*it)->getBody()).position[1] < getWaspSegment(player->getBody()).position[1])
 	  (*it)->fly(*this);
+	(*it)->direction *= 0.9f;
+	if (getWaspSegment((*it)->getBody()).position[0] < getWaspSegment(player->getBody()).position[0])	
+	  (*it)->direction += 0.1f;
+	else
+	  (*it)->direction -= 0.1f;
+
+	getWaspSegment((*it)->getBody()).speed[0] += 0.001f * (*it)->direction;
+	  
 	(*it)->fire(*this, getWaspSegment(wasps.front()->getBody()).position);
+	(*it)->eating = true;
       }
     for (auto &waspSegment : waspSegments)
       waspSegment.update();
@@ -117,8 +131,8 @@ namespace state
 	auto speedDiff(dir.scalar(waspSegment0.speed - waspSegment1.speed));
 	auto springSize((waspSegment0.radius + waspSegment1.radius) * 0.08f);
 
-	waspSegment0.speed -= dir * ((len - springSize) * 0.1f + speedDiff * 0.07f);
-	waspSegment1.speed += dir * ((len - springSize) * 0.1f + speedDiff * 0.07f);
+	waspSegment0.speed -= dir * ((len - springSize) * 0.1f + speedDiff * 0.1f);
+	waspSegment1.speed += dir * ((len - springSize) * 0.1f + speedDiff * 0.1f);
       }
 
     wasps.erase(std::remove_if(wasps.begin() + 1, wasps.end(),
@@ -252,14 +266,27 @@ namespace state
     // do terrain collision
     for (auto &waspSegment : waspSegments)
       {
-	map.collision(waspSegment.position, waspSegment.speed, waspSegment.radius, [&waspSegment](claws::vect<float, 2u> collisionPoint)
-										   {
-										     auto diff(collisionPoint - waspSegment.position);
-										     auto dir(diff.normalized());
+	map.collision(waspSegment.position, waspSegment.speed, waspSegment.radius * (waspSegment.part == Part::body ? 1.5f : 1.0f),
+		      [&waspSegment](claws::vect<float, 2u> collisionPoint)
+		      {
+			auto diff(collisionPoint - waspSegment.position);
+			auto dir(diff.normalized());
 
-										     waspSegment.speed -= dir * 2.0f * waspSegment.speed.scalar(dir);
-										     waspSegment.position = collisionPoint - dir * waspSegment.radius;
-										   });
+			waspSegment.speed -= dir * 2.0f * waspSegment.speed.scalar(dir);
+			waspSegment.position = collisionPoint - dir * waspSegment.radius * (waspSegment.part == Part::body ? 1.5f : 1.0f);
+		      });
+      }
+    for (auto &gun : guns)
+      {
+	map.collision(gun->position, gun->speed, gun->radius,
+		      [&gun](claws::vect<float, 2u> collisionPoint)
+		      {
+			auto diff(collisionPoint - gun->position);
+			auto dir(diff.normalized());
+
+			gun->speed -= dir * 2.0f * gun->speed.scalar(dir);
+			gun->position = collisionPoint - dir * gun->radius;
+		      });
       }
     for (auto &nail : nails)
       map.collision(nail.position, nail.speed, 0.0f, [&](claws::vect<float, 2u> collisionPoint)
@@ -356,6 +383,8 @@ namespace state
     displayData.heat = wasps.front()->gun ? wasps.front()->gun->getHeat() : 0.0f;
     for (auto &waspSegment : waspSegments)
       {
+	if (waspSegment.unused)
+	  continue;
 	claws::vect<float, 2u> invert{waspSegment.wasp && waspSegment.wasp->direction < 0 ? 1.0f : -1.0f, 1.0f};
 	switch (waspSegment.part)
 	  {
@@ -419,6 +448,19 @@ namespace state
   WaspSegment const &GameState::getWaspSegment(size_t index) const noexcept
   {
     return waspSegments[index];
+  }
+
+  void GameState::removeWaspSegment(size_t index)
+  {
+    auto &segment(getWaspSegment(index));
+    if (Wasp *&wasp = segment.wasp)
+      {
+	wasp->removePart(segment.part);
+	wasp = nullptr;
+      }
+    segment.disableCollision = true;
+    segment.unused = true;
+    reusableSegments.emplace_back(index);
   }
 
   void GameState::looseGun(std::unique_ptr<Gun> &&gun)

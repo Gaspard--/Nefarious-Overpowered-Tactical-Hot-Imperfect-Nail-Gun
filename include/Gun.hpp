@@ -13,6 +13,7 @@ class Gun
 {
 public:
   claws::vect<float, 2> position;
+  claws::vect<float, 2> speed;
   float radius{0.05f};
   virtual ~Gun() noexcept = default;
   virtual bool fire(state::GameState &gameState, Wasp *wasp, claws::vect<float, 2u> position, claws::vect<float, 2u> dir) = 0;

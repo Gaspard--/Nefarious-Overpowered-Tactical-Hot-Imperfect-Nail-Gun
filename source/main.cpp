@@ -7,8 +7,16 @@
 # include "DisplayData.hpp"
 # include "SoundHandler.hpp"
 # include "my_glfw.hpp"
+
+#ifndef NDEBUG
+#include <fenv.h>
+#endif
+
 int main()
 {
+#ifndef NDEBUG
+feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
+#endif
   try {
     GlfwContext glfwContext{};
 

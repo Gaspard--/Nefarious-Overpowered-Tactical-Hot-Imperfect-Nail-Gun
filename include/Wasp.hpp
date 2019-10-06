@@ -28,9 +28,22 @@ struct WaspSegment
   Part part;
   Wasp *wasp;
   bool disableCollision{false};
+  bool unused{false};
 
   void update() noexcept;
+
+  float getMass() const noexcept
+  {
+    return std::pow(radius, 3.0f);
+  }
+
+  void setMass(float mass) noexcept
+  {
+    radius = std::pow(mass, 1.0f / 3.0f);
+  }
 };
+
+void doSprint(WaspSegment &a, WaspSegment &b) noexcept;
 
 class Wasp
 {
@@ -78,6 +91,7 @@ public:
   void fire(state::GameState &gamestate, claws::vect<float, 2u> target);
   void pickUpGun(std::unique_ptr<Gun> &&gun);
   void swallow(state::GameState &gameState, uint32_t index);
+  void removePart(Part segment) noexcept;
 
   bool canBeRemoved() const noexcept
   {

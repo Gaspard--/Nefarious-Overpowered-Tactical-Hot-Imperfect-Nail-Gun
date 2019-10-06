@@ -19,6 +19,48 @@ Wasp::Wasp(state::GameState &gameState, claws::vect<float, 2u> position, float d
 {
 }
 
+// void doSprint(WaspSegment &a, WaspSegment &b, claws::vect<float, 2u> diff, float springSize) noexcept
+// {
+//   WaspSegment &waspSegment0(gameState.getWaspSegment(waspSegments[i]));
+//   WaspSegment &waspSegment1(gameState.getWaspSegment(waspSegments[i + 1]));
+
+//   auto diff(waspSegment0.position - waspSegment1.position - claws::vect<float, 2u>{direction * (waspSegment0.radius + waspSegment1.radius), 0.03f});
+//   auto dir(diff.normalized());
+//   auto len(std::sqrt(diff.length2()));
+//   auto speedDiff(dir.scalar(waspSegment0.speed - waspSegment1.speed));
+//   auto springSize((waspSegment0.radius + waspSegment1.radius) * 0.08f);
+//   auto strength(((len - springSize) * 0.07f + speedDiff * 0.3f));
+
+//   // if (strength >= waspSegment0.radius + waspSegment1.radius)
+//   // 	{
+//   // 	  waspSegment0.speed += dir * strength * 9.0f;
+//   // 	  waspSegment1.speed -= dir * strength * 9.0f;
+//   // 	  gameState.getWaspSegment(waspSegments[i * 2]).wasp = nullptr;
+//   // 	  waspSegments[i * 2] = ~0u;
+//   // 	}
+//   // else
+//   {
+//     waspSegment0.speed -= dir * strength;
+//     waspSegment1.speed += dir * strength;
+//   }
+// }
+
+claws::vect<float, 2u> springForce(claws::vect<float, 2u> diff, claws::vect<float, 2u> speedDiff, float springSize) noexcept
+{
+  auto len(std::sqrt(diff.length2()));
+  auto dir(diff.normalized());
+  auto speedDiffProj(dir.scalar(speedDiff));
+
+  return dir * ((len - springSize) * 0.07f + speedDiffProj * 0.3f);
+}
+
+void applyForce(WaspSegment &a, WaspSegment &b, claws::vect<float, 2u> force) noexcept
+{
+  auto massSum = a.getMass() + b.getMass();
+
+  a.speed -= force * b.getMass() / massSum;
+  b.speed += force * a.getMass() / massSum;
+}
 
 void Wasp::update(state::GameState &gameState) noexcept
 {
@@ -34,7 +76,7 @@ void Wasp::update(state::GameState &gameState) noexcept
     for (int i(0); i < 3; ++i)
       {
 	if (~waspSegments[i])
-	  mass[i] = std::pow(gameState.getWaspSegment(waspSegments[i]).radius, 3.0f);
+	  mass[i] = gameState.getWaspSegment(waspSegments[i]).getMass();
 	else
 	  mass[i] = 0.0f;
 	total += mass[i];
@@ -51,48 +93,80 @@ void Wasp::update(state::GameState &gameState) noexcept
     mass[2] = total - mass[1] - mass[0] + inBelly;
     for (int i(0); i < 3; ++i)
       {
-	gameState.getWaspSegment(waspSegments[i]).radius = std::pow(mass[i], 1.0f / 3.0f);
+	if (~waspSegments[i])
+	  gameState.getWaspSegment(waspSegments[i]).setMass(mass[i]);
       }
   }
-
 
   for (int i(0); i < 2; ++i)
     {
       if (!~waspSegments[i * 2] || (!gameState.getWaspSegment(waspSegments[i * 2]).radius && !gameState.getWaspSegment(waspSegments[i * 2]).radius)) // relevant end segment detached, or both parts eaten
 	continue;
-      WaspSegment &waspSegment0(gameState.getWaspSegment(waspSegments[i]));
-      WaspSegment &waspSegment1(gameState.getWaspSegment(waspSegments[i + 1]));
+      {
+	WaspSegment &waspSegment0(gameState.getWaspSegment(waspSegments[i]));
+	WaspSegment &waspSegment1(gameState.getWaspSegment(waspSegments[i + 1]));
 
-      auto diff(waspSegment0.position - waspSegment1.position - claws::vect<float, 2u>{direction * (waspSegment0.radius + waspSegment1.radius), 0.03f});
-      auto dir(diff.normalized());
-      auto len(std::sqrt(diff.length2()));
-      auto speedDiff(dir.scalar(waspSegment0.speed - waspSegment1.speed));
-      auto springSize((waspSegment0.radius + waspSegment1.radius) * 0.08f);
-      auto strength(((len - springSize) * 0.07f + speedDiff * 0.1f));
+	auto diff(waspSegment0.position - waspSegment1.position - claws::vect<float, 2u>{direction * (waspSegment0.radius + waspSegment1.radius), 0.03f});
+	auto springSize((waspSegment0.radius + waspSegment1.radius) * 0.08f);
+	auto force(springForce(diff, waspSegment0.speed - waspSegment1.speed, springSize));
 
-      if (strength >= waspSegment0.radius + waspSegment1.radius)
-	{
-	  waspSegment0.speed += dir * strength * 9.0f;
-	  waspSegment1.speed -= dir * strength * 9.0f;
-	  gameState.getWaspSegment(waspSegments[i * 2]).wasp = nullptr;
-	  waspSegments[i * 2] = ~0u;
-	}
-      else
-	{
-	  waspSegment0.speed -= dir * strength;
-	  waspSegment1.speed += dir * strength;
-	}
+	// if (strength >= waspSegment0.radius + waspSegment1.radius)
+	// 	{
+	// 	  waspSegment0.speed += dir * strength * 9.0f;
+	// 	  waspSegment1.speed -= dir * strength * 9.0f;
+	// 	  gameState.getWaspSegment(waspSegments[i * 2]).wasp = nullptr;
+	// 	  waspSegments[i * 2] = ~0u;
+	// 	}
+	// else
+	applyForce(waspSegment0, waspSegment1, force);
+      }
+      {
+	WaspSegment &waspSegment0(gameState.getWaspSegment(waspSegments[i]));
+	WaspSegment &waspSegment1(gameState.getWaspSegment(waspSegments[i + 1]));
+
+	auto diff(waspSegment0.position - waspSegment1.position);
+	auto springSize(waspSegment0.radius + waspSegment1.radius);
+	auto force(springForce(diff, waspSegment0.speed - waspSegment1.speed, springSize));
+
+	// if (strength >= waspSegment0.radius + waspSegment1.radius)
+	// 	{
+	// 	  waspSegment0.speed += dir * strength * 9.0f;
+	// 	  waspSegment1.speed -= dir * strength * 9.0f;
+	// 	  gameState.getWaspSegment(waspSegments[i * 2]).wasp = nullptr;
+	// 	  waspSegments[i * 2] = ~0u;
+	// 	}
+	// else
+	applyForce(waspSegment0, waspSegment1, force);
+      }
     }
-  if (eating && !~getHead())
+  if (eating && ~getHead())
     {
       for (auto &victim : victims)
-	gameState.getWaspSegment(victim).position = gameState.getWaspSegment(victim).position * 0.9f + gameState.getWaspSegment(getHead()).position * 0.1f;
+	{
+	  auto &victimPart(gameState.getWaspSegment(victim));
+	  auto &head(gameState.getWaspSegment(getHead()));
+	  auto force(springForce(head.position - victimPart.position, head.speed - victimPart.speed, 0.0f));
+
+	  applyForce(head, victimPart, force);
+
+	  float mass = victimPart.getMass();
+
+	  float eaten = mass * 0.1f;
+	  if (victimPart.radius < head.radius * 0.1f) {
+	    eaten = mass;
+	    gameState.removeWaspSegment(victim);
+	  }
+	  victimPart.setMass(mass - eaten);
+	  head.setMass(head.getMass() + eaten);
+	  inBelly += eaten;
+  	}
     }
   else
     {
-      // TODO: mark as unused
-      // for (auto &victim : victims)
-      //   gameState.getWaspSegment(victim).unused = true;
+      for (auto &victim : victims)
+	{
+	  gameState.getWaspSegment(victim).disableCollision = false;
+	}
       victims.clear();
     }
 
@@ -102,7 +176,6 @@ void Wasp::update(state::GameState &gameState) noexcept
       gameState.getWaspSegment(getBody()).speed[1] += -0.004f;
       gun->update();
     }
-  dead = !~waspSegments[0] && !~waspSegments[2];
   if (dead)
     for (auto &waspSegment : waspSegments)
       if (~waspSegment)
@@ -133,6 +206,7 @@ void Wasp::fire(state::GameState &gameState, claws::vect<float, 2u> target)
 
       if (!gun->fire(gameState, this, gameState.getWaspSegment(getBody()).position, dir)) {
 	gun->position = gameState.getWaspSegment(getBody()).position;
+	gun->speed = {0.0f, 0.01f};
 	gameState.looseGun(std::move(gun));
       }
     }
@@ -149,18 +223,22 @@ void Wasp::swallow(state::GameState &gameState, uint32_t index)
 {
   if (dead)
     return;
-  gameState.getWaspSegment(getHead()).radius = std::pow(std::pow(gameState.getWaspSegment(getHead()).radius, 3.0f)
-							+ std::pow(gameState.getWaspSegment(index).radius, 3.0f), 1.0f / 3.0f);
-  inBelly += std::pow(gameState.getWaspSegment(index).radius, 3.0f);
-  if (gameState.getWaspSegment(index).wasp)
-    victims.emplace_back(index);
+  // gameState.getWaspSegment(getHead()).radius = std::pow(std::pow(gameState.getWaspSegment(getHead()).radius, 3.0f)
+  // 							+ std::pow(gameState.getWaspSegment(index).radius, 3.0f), 1.0f / 3.0f);
+  // if (gameState.getWaspSegment(index).wasp)
+  victims.emplace_back(index);
   // TODO: mark as unused
   //  else
   //    gameState.getWaspSegment(index).unused = true;
   gameState.getWaspSegment(index).disableCollision = true;
-  gameState.getWaspSegment(index).radius = 0.0f;
+  // gameState.getWaspSegment(index).radius = 0.0f;
 }
 
+void Wasp::removePart(Part segment) noexcept
+{
+  waspSegments[size_t(segment)] = ~0u;
+  dead = (!~waspSegments[0] && !~waspSegments[2]) || !~waspSegments[1];
+}
 
 void WaspSegment::update() noexcept
 {

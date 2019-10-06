@@ -38,6 +38,7 @@ namespace state
     MapManager map;
 
     std::vector<WaspSegment> waspSegments;
+    std::vector<uint32_t> reusableSegments;
     std::vector<Nail> nails;
     std::vector<WaspSegmentNailer> waspSegmentNailers;
     std::vector<WaspToWaspNailer> waspToWaspNailers;
@@ -62,6 +63,8 @@ namespace state
     WaspSegment &getWaspSegment(size_t index) noexcept;
 
     WaspSegment const &getWaspSegment(size_t index) const noexcept;
+
+    void removeWaspSegment(size_t index);
 
     void addNail(claws::vect<float, 2u> position, claws::vect<float, 2u> speed, Wasp *wasp);
 
