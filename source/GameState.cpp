@@ -29,12 +29,12 @@ namespace state
 				claws::vect<float, 2u>{0.9f, 1.5f},
 				1.0f,
 				0.03f));
-    for (float i = 0.0f; i < 15.5f; ++i)
+    for (float i = 0.0f; i < 5.5f; ++i)
       {
 	wasps.emplace_back(new Wasp(*this,
-				    claws::vect<float, 2u>{0.3f * i, 1.0f},
+				    claws::vect<float, 2u>{0.6f * i, 1.0f},
 				    1.0f,
-				    0.03f));
+				    0.03f * (1.0f + i)));
       }
     wasps.front()->pickUpGun(std::unique_ptr<Gun>(guns::makeNothing()));
   }
@@ -74,7 +74,7 @@ namespace state
     player->eating = eating;
     for (auto it = wasps.begin() + 1; it != wasps.end(); ++it)
       {
-	if (getWaspSegment((*it)->getBody()).position[1] < getWaspSegment(player->getBody()).position[1])
+	if (getWaspSegment((*it)->getBody()).position[1] < getWaspSegment(player->getBody()).position[1] + 0.1f)
 	  (*it)->fly(*this);
 	(*it)->fire(*this, getWaspSegment(wasps.front()->getBody()).position);
       }
@@ -160,8 +160,15 @@ namespace state
 
 			if (!skipCollision && (otherWaspSegment.speed - waspSegment.speed).scalar(diff) < 0)
 			  {
-			    otherWaspSegment.speed += diff / diff.length2() * 0.001f;
-			    waspSegment.speed -= diff / diff.length2() * 0.001f;
+			    auto dir(diff.normalized());
+			    auto rebound(dir * 2.0f * (otherWaspSegment.speed - waspSegment.speed).scalar(dir));
+			    auto waspSegmentWeight(std::pow(waspSegment.radius, 3.0f));
+			    auto otherWaspSegmentWeight(std::pow(otherWaspSegment.radius, 3.0f));
+			    
+			    waspSegment.speed += rebound * otherWaspSegmentWeight / (waspSegmentWeight + otherWaspSegmentWeight);
+			    otherWaspSegment.speed -= rebound * waspSegmentWeight / (waspSegmentWeight + otherWaspSegmentWeight);
+			    otherWaspSegment.speed += diff / diff.length2() * 0.0001f * otherWaspSegmentWeight / (waspSegmentWeight + otherWaspSegmentWeight);
+			    waspSegment.speed -= diff / diff.length2() * 0.0001f * waspSegmentWeight / (waspSegmentWeight + otherWaspSegmentWeight);
 			  }
 		      }
 		  }
@@ -209,7 +216,7 @@ namespace state
 		      }
 		    else
 		      {
-			waspSegment.speed += nail.speed * 0.2f;
+			waspSegment.speed += nail.speed;
 			waspSegment.radius *= 0.95f;
 			nail.speed *= 0.8f;
 			nail.timer = std::min(nail.timer, 2u);
@@ -238,28 +245,16 @@ namespace state
 										     waspSegment.position = collisionPoint - dir * waspSegment.radius;
 										   });
       }
-    
-    for (auto &waspSegment : waspSegments)
-      for (int i = 0; i < 2; ++i)
-	if (waspSegment.position[i] - 0.0f < waspSegment.radius) // stupid ground check for the moment
-	  {
-	    waspSegment.position[i] = +0.0f + waspSegment.radius;
-	    waspSegment.speed[i] *= -0.9f;
-	  }
     for (auto &nail : nails)
-      for (int i = 0; i < 2; ++i)
-	if (nail.position[i] - 0.0f < 0.0f) // stupid ground check for the moment
-	  {
-	    nail.position[i] = 0.0f;
-	    nail.timer = 0;
-	    if (~nail.waspSegmentStick)
-	      {
-		claws::vect<float, 2u> offset{0, 0};
-
-		offset[i] += getWaspSegment(nail.waspSegmentStick).radius;
-		waspSegmentNailers.emplace_back(WaspSegmentNailer{nail.position, nail.waspSegmentStick});
-	      }
-	  }
+      map.collision(nail.position, nail.speed, 0.0f, [&](claws::vect<float, 2u> collisionPoint)
+						     {
+						       nail.position = collisionPoint;
+						       nail.timer = 0;
+						       if (~nail.waspSegmentStick)
+							 {
+							   waspSegmentNailers.emplace_back(WaspSegmentNailer{nail.position - nail.speed.normalized() * getWaspSegment(nail.waspSegmentStick).radius, nail.waspSegmentStick});
+							 }
+						     });
     if (false) // dead
       return GAME_OVER_STATE;
     else if (won)
@@ -291,7 +286,7 @@ namespace state
   {
     // mouse + keyboard input
     right = float((input.isKeyPressed(GLFW_KEY_D) || input.isKeyPressed(GLFW_KEY_RIGHT)) -
-			(input.isKeyPressed(GLFW_KEY_A) || input.isKeyPressed(GLFW_KEY_LEFT)));
+		  (input.isKeyPressed(GLFW_KEY_A) || input.isKeyPressed(GLFW_KEY_LEFT)));
     up = (input.isKeyPressed(GLFW_KEY_W) || input.isKeyPressed(GLFW_KEY_UP));
     firing = (input.isMouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT));
     eating = (input.isMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT) || input.isKeyPressed(GLFW_KEY_SPACE));
@@ -359,8 +354,8 @@ namespace state
 	    break;
 	  case Part::abdomen:
 	    displayData.anims[size_t(SpriteId::WaspAbdomen)].emplace_back(AnimInfo{apply(waspSegment.position - invert * waspSegment.radius * 2.2f),
-										apply(waspSegment.position + invert * waspSegment.radius * 2.2f),
-										0});
+										   apply(waspSegment.position + invert * waspSegment.radius * 2.2f),
+										   0});
 	    break;
 	  }
       }
@@ -373,7 +368,7 @@ namespace state
 
   claws::vect<float, 2u> GameState::getOffset() const noexcept
   {
-    return -getWaspSegment(wasps.front()->getHead()).position;
+    return -getWaspSegment(0).position;
   }
 
   float GameState::getZoom() const noexcept

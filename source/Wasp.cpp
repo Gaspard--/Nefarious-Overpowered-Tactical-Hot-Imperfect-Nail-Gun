@@ -52,7 +52,7 @@ void Wasp::update(state::GameState &gameState) noexcept
 	  waspSegment1.speed += dir * strength;
 	}
     }
-  if (eating)
+  if (eating && !~getHead())
     {
       for (auto &victim : victims)
 	gameState.getWaspSegment(victim).position = gameState.getWaspSegment(victim).position * 0.9f + gameState.getWaspSegment(getHead()).position * 0.1f;
@@ -71,10 +71,11 @@ void Wasp::update(state::GameState &gameState) noexcept
       gameState.getWaspSegment(getBody()).speed[1] += -0.004f;
       gun->update();
     }
-  dead = !~waspSegments[0] && !~waspSegments[1];
+  dead = !~waspSegments[0] && !~waspSegments[2];
   if (dead)
     for (auto &waspSegment : waspSegments)
-      gameState.getWaspSegment(waspSegment).wasp = nullptr;
+      if (~waspSegment)
+	gameState.getWaspSegment(waspSegment).wasp = nullptr;
 }
 
 void Wasp::fly(state::GameState &gameState) noexcept
