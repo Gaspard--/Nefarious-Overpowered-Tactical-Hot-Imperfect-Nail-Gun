@@ -26,7 +26,7 @@ namespace state
     : map({2.0, 1.0})
   {
     wasps.emplace_back(new Wasp(*this,
-				claws::vect<float, 2u>{0.9f, 0.0f},
+				claws::vect<float, 2u>{0.9f, 1.5f},
 				1.0f,
 				0.03f));
     for (float i = 0.0f; i < 15.5f; ++i)
@@ -231,11 +231,11 @@ namespace state
       {
 	map.collision(waspSegment.position, waspSegment.speed, waspSegment.radius, [&waspSegment](claws::vect<float, 2u> collisionPoint)
 										   {
-										     std::cout << collisionPoint[0] << "," << collisionPoint[1] << std::endl;
 										     auto diff(collisionPoint - waspSegment.position);
 										     auto dir(diff.normalized());
 
 										     waspSegment.speed -= dir * 2.0f * waspSegment.speed.scalar(dir);
+										     waspSegment.position = collisionPoint - dir * waspSegment.radius;
 										   });
       }
     
