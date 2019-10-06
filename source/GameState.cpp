@@ -23,7 +23,7 @@ namespace state
 {
 
   GameState::GameState()
-    : map({1920, 1080})
+    : map({2.0, 1.0})
   {
     wasps.emplace_back(new Wasp(*this,
 				claws::vect<float, 2u>{0.3f, 0.0f},
@@ -157,7 +157,7 @@ namespace state
 			      otherWaspSegment.wasp->swallow(*this, i);
 			    skipCollision = true;
 			  }
-			  
+
 			if (!skipCollision && (otherWaspSegment.speed - waspSegment.speed).scalar(diff) < 0)
 			  {
 			    otherWaspSegment.speed += diff / diff.length2() * 0.001f;
@@ -198,7 +198,7 @@ namespace state
 		    // note: -(-nail.speed) is +nail.speed
 		    if ((diff + nail.speed).scalar(nail.speed) < 0.0f && (nail.speed + diff).length2() > waspSegment.radius * waspSegment.radius)
 		      continue;
-		    
+
 		    if (~nail.waspSegmentStick)
 		      {
 			if (waspSegment.wasp && waspSegment.wasp != getWaspSegment(nail.waspSegmentStick).wasp)

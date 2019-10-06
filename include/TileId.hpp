@@ -1,5 +1,7 @@
 #pragma once
 
+constexpr static float tileSize = 0.1;
+
 enum class TileId : uint32_t
   {
    Empty,
@@ -11,4 +13,3 @@ enum class TileId : uint32_t
    RightClosedWall,
    LeftClosedWall,
   };
-
