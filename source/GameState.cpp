@@ -37,7 +37,7 @@ namespace state
     : map({2.0f, 1.0f})
   {
     wasps.emplace_back(new Wasp(*this,
-				claws::vect<float, 2u>{0.9f, 1.5f},
+				claws::vect<float, 2u>{0.3f, 0.3f},
 				1.0f,
 				0.03f));
     // for (float i = 0.0f; i < 15.5f; ++i)
@@ -67,7 +67,9 @@ namespace state
 	  {
 	    if (Wasp *wasp = getWaspSegment(i).wasp)
 	      {
-		wasp->die(*this);
+		removeWaspSegment(wasp->getHead());
+		removeWaspSegment(wasp->getBody());
+		removeWaspSegment(wasp->getAbdommen());
 	      }
 	    else
 	      removeWaspSegment(i);
@@ -232,7 +234,7 @@ namespace state
 		}
 	    }
 	for (auto const &gun : guns)
-	  if ((aiInfo.target - head.position).length2() > (gun->position - head.position).length2())
+	  if (gun->getHeat() < 0.1f && (aiInfo.target - head.position).length2() > (gun->position - head.position).length2())
 	    {
 	      aiInfo.target = gun->position;
 	      aiInfo.eat = false;
@@ -298,19 +300,19 @@ namespace state
     {
       float angle = float(rand());
 
-      auto pos = claws::vect<float, 2u>(std::sin(angle), std::cos(angle)) * 3.0f * zoom;
+      auto pos = claws::vect<float, 2u>(std::sin(angle), std::cos(angle)) * 3.0f * zoom - offset;
 
       float radius = float(unsigned (rand()) % 100u) * 0.01f;
 
-      radius *= radius;
       radius *= 0.1f;
       radius += 0.01f;
 
       {
 	bool fail = false;
-	map.collision(pos, {0.0f, 0.0f}, radius, [&fail](auto const &){ fail = true; });
-	if (fail)
-	  goto fail;
+	for (int x = int(std::floor((pos[0] - radius * 2.0f) / tileSize)); float(x) * tileSize <= pos[0] + radius * 2.0f; ++x)
+	  for (int y = int(std::floor((pos[1] - radius * 2.0f) / tileSize)); float(y) * tileSize <= pos[1] + radius * 2.0f; ++y)
+	    if (map.getTile({x, y}) != TileId::Empty)
+	      goto fail;
       }
       {
 	claws::vect<int32_t, 2> min;

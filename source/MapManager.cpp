@@ -1,11 +1,74 @@
 # include "MapManager.hpp"
 # include <cmath>
 
+static constexpr size_t mapSize = 300;
+
 MapManager::MapManager(claws::vect<float, 2> const &winSize)
   : winSize(winSize)
 {
-  generateChunk(0, winSize[0] / tileSize * 2, winSize[1] / tileSize * 2, 0);
-  initTestMap();
+  initProcGenMap();
+}
+
+void MapManager::generateRoom(int xO, int yO, int size)
+{
+  if (xO + size >= mapSize || yO + size >= mapSize || xO < 1 || yO < 1)
+    return ;
+  for (int x = xO; x < xO + size; ++x)
+    for (int y = yO; y < yO + size; ++y)
+      if (mapTiles[x][y] != TileId::Wall)
+	return ;
+  for (int x = xO; x < xO + size; ++x)
+    for (int y = yO; y < yO + size; ++y)
+      mapTiles[x][y] = TileId::Empty;
+
+  if (size > 8)
+    {
+      int plateformPos = yO + rand() % (size - 1);
+      for (int x = xO + rand() % size - 4; x < mapSize; ++x)
+	if (mapTiles[x][plateformPos] == TileId::Empty)
+	  mapTiles[x][plateformPos] = TileId::UpClosedWall;
+	else
+	  goto end_plateform;
+    end_plateform:
+      ;      
+    }
+  
+  generateRoom((rand() % size) - size / 2 + xO, yO + size, size + 1);
+  generateRoom(xO + size, (rand() % size) - size / 2 + yO, size + 1);
+
+  int ladderPos = xO + rand() % size;
+  {
+    for (int y = yO; y < mapSize; ++y)
+      if (y < yO + size || mapTiles[ladderPos][y] == TileId::Empty)
+	mapTiles[ladderPos][y] = TileId::UpClosedWall;
+      else
+	goto end_ladder;
+  end_ladder:
+    ;
+  }
+  if (size > 10)
+    {
+      int wallPos = xO + size / 4 + (rand() % (size / 2));
+      if (std::abs(wallPos - ladderPos) > size / 4)
+	{
+	  for (int y = yO; y < mapSize; ++y)
+	    if ((rand() & 3) && (y < yO + size / 2 || mapTiles[wallPos][y] == TileId::Empty))
+	      mapTiles[wallPos][y] = ladderPos > wallPos ? TileId::RightClosedWall : TileId::LeftClosedWall;
+	    else
+	      goto end_wall;
+	end_wall:
+	  ;
+	}
+    }
+}
+
+void MapManager::initProcGenMap()
+{
+  mapTiles.resize(mapSize);
+  for (auto &line : mapTiles)
+    line.resize(mapSize, TileId::Wall);
+
+  generateRoom(1, 1, 3);
 }
 
 void MapManager::initTestMap()
@@ -152,25 +215,6 @@ TileId MapManager::getTile(claws::vect<unsigned int, 2u> pos) const noexcept
 void MapManager::setMapPosition(claws::vect<int, 2> const &position)
 {
   this->position = position;
-  if (position[0] + winSize[0] / tileSize > mapTiles[0].size())
-    generateChunk(0, winSize[0] / tileSize * 2, 0, 0);
-  else if (position[0] < 0)
-    generateChunk(winSize[0] / tileSize * 2, 0, 0, 0);
-  if (position[1] + winSize[1] / tileSize > mapTiles[1].size())
-    generateChunk(0, 0, winSize[1] / tileSize * 2, 0);
-  else if (position[1] < 0)
-    generateChunk(0, 0, 0, winSize[1] / tileSize * 2);
-}
-
-void MapManager::generateChunk(uint32_t leftExp, uint32_t rightExp, uint32_t upExp, uint32_t downExp)
-{
-  (void)leftExp;
-  (void)rightExp;
-  (void)upExp;
-  (void)downExp;
-  //
-  // map gen
-  //
 }
 
 void MapManager::fillDisplayData(claws::vect<int, 2> &mapOffset, claws::vect<int, 2> const &mapSize, std::vector<TileId> &drawMap) const
