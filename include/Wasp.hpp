@@ -92,7 +92,8 @@ public:
   void fire(state::GameState &gamestate, claws::vect<float, 2u> target);
   void pickUpGun(std::unique_ptr<Gun> &&gun);
   void swallow(state::GameState &gameState, uint32_t index);
-  void removePart(Part segment) noexcept;
+  void die(state::GameState &gameState) noexcept;
+  void removePart(state::GameState &gameState, Part segment) noexcept;
 
   bool canBeRemoved() const noexcept
   {

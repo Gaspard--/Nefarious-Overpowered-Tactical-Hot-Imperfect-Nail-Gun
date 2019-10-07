@@ -26,6 +26,8 @@ namespace state
     std::array<bool, 1> jsButtonWasPressed;
     float gameSpeed{1.0f};
     float timer{0.0f};
+    claws::vect<float, 2> offset{0.0f, 0.0f};
+    float zoom{0.01f};
   public:
     float screenShake{0.0f};
   private:

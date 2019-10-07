@@ -84,8 +84,8 @@ void Wasp::update(state::GameState &gameState) noexcept
     total -= inBelly;
     if (total < 0.0f)
       {
-	dead = true;
-	return ;
+	die(gameState);
+        return ;
       }
     for (int i(0); i < 2; ++i)
       {
@@ -104,7 +104,7 @@ void Wasp::update(state::GameState &gameState) noexcept
 	  {
 	    if (mass[i] < 0.0f)
 	      {
-		dead = true;
+		die(gameState);
 		return ;
 	      }
 	    gameState.getWaspSegment(waspSegments[i]).setMass(mass[i]);
@@ -166,7 +166,7 @@ void Wasp::update(state::GameState &gameState) noexcept
 	  float mass = victimPart.getMass();
 
 	  float eaten = mass * 0.1f;
-	  if (victimPart.radius < 0.001f) {
+	  if (victimPart.radius < 0.001f || victimPart.radius < head.radius * 0.5f) {
 	    eaten = mass;
 	    gameState.removeWaspSegment(victim);
 	  }
@@ -190,10 +190,6 @@ void Wasp::update(state::GameState &gameState) noexcept
       gameState.getWaspSegment(getBody()).speed[1] += -0.004f;
       gun->update();
     }
-  if (dead)
-    for (auto &waspSegment : waspSegments)
-      if (~waspSegment)
-	gameState.getWaspSegment(waspSegment).wasp = nullptr;
 }
 
 void Wasp::fly(state::GameState &gameState) noexcept
@@ -248,10 +244,26 @@ void Wasp::swallow(state::GameState &gameState, uint32_t index)
   // gameState.getWaspSegment(index).radius = 0.0f;
 }
 
-void Wasp::removePart(Part segment) noexcept
+void Wasp::die(state::GameState &gameState) noexcept
+{
+  if (dead)
+    return ;
+  dead = true;
+  for (auto &waspSegment : waspSegments)
+    if (~waspSegment)
+      {
+	auto segment(gameState.getWaspSegment(waspSegment));
+
+	removePart(gameState, segment.part);
+	segment.wasp = nullptr;
+      }
+}
+
+void Wasp::removePart(state::GameState &gameState, Part segment) noexcept
 {
   waspSegments[size_t(segment)] = ~0u;
-  dead = (!~waspSegments[0] && !~waspSegments[2]) || !~waspSegments[1];
+  if ((!~waspSegments[0] && !~waspSegments[2]) || !~waspSegments[1])
+    die(gameState);
 }
 
 void WaspSegment::update() noexcept

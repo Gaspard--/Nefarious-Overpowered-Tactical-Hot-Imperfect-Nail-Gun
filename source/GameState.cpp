@@ -61,6 +61,10 @@ namespace state
       {
 	if ((*it)->canBeRemoved())
 	  continue;
+	// reset state & ai not linked to player
+	(*it)->eating = false;
+	if (player->canBeRemoved())
+	  continue;
 	if (getWaspSegment((*it)->getBody()).position[1] < getWaspSegment(player->getBody()).position[1])
 	  (*it)->fly(*this);
 	(*it)->direction *= 0.9f;
@@ -203,7 +207,7 @@ namespace state
 			auto diff(collisionPoint - waspSegment.position);
 			auto dir(diff.normalized());
 
-			waspSegment.speed -= dir * 2.0f * waspSegment.speed.scalar(dir);
+			waspSegment.speed -= dir * 1.9f * waspSegment.speed.scalar(dir);
 			waspSegment.position = collisionPoint - dir * waspSegment.radius * (waspSegment.part == Part::body ? 1.5f : 1.0f);
 		      });
       }
@@ -237,6 +241,17 @@ namespace state
     timer += getGameSpeed();
     SoundHandler::getInstance().setGlobalPitch(getGameSpeed());
     auto &player(wasps.front());
+
+    if (!player->canBeRemoved())
+      {
+	zoom *= 0.9f;
+	zoom += 0.05f / (getWaspSegment(wasps.front()->getBody()).radius + 0.01f) * 0.1f;
+      }
+    if (!waspSegments.front().unused)
+      {
+	offset *= 0.9f;
+	offset += -getWaspSegment(0).position * 0.1f;
+      }
 
     map.setMapPosition(claws::vect_cast<int>(-getOffset() / tileSize));
 
@@ -452,12 +467,12 @@ namespace state
 
   claws::vect<float, 2u> GameState::getOffset() const noexcept
   {
-    return -getWaspSegment(0).position;
+    return offset;
   }
 
   float GameState::getZoom() const noexcept
   {
-    return 0.05f / (getWaspSegment(wasps.front()->getBody()).radius + 0.01f);
+    return zoom;
   }
 
   WaspSegment &GameState::getWaspSegment(size_t index) noexcept
@@ -476,12 +491,13 @@ namespace state
     auto &segment(getWaspSegment(index));
     if (Wasp *&wasp = segment.wasp)
       {
-	wasp->removePart(segment.part);
+	wasp->removePart(*this, segment.part);
 	wasp = nullptr;
       }
     segment.disableCollision = true;
     segment.unused = true;
-    reusableSegments.emplace_back(index);
+    if (index >= 3) // avoid reusing player segments
+      reusableSegments.emplace_back(index);
   }
 
   void GameState::looseGun(std::unique_ptr<Gun> &&gun)
