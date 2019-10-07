@@ -502,7 +502,8 @@ namespace state
       }
 
 
-    gameOver |= wasps.front()->canBeRemoved(); // dead
+    if (wasps.front()->canBeRemoved())
+      return GAME_OVER_STATE;
     if (won)
       return WIN_STATE;
     return StateType::CONTINUE;
