@@ -41,7 +41,7 @@ class Display
   void renderTerrain(DisplayData const &displayData);
   void renderBlood(DisplayData const &displayData);
   void renderDeadScreen(const std::vector<std::pair<std::string, std::string>>& fellows);
-  void renderBack(float timer);
+  void renderBack(SpriteId sprite, claws::vect<float, 2u> offset, float zoom);
 
 public:
 

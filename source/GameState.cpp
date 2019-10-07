@@ -11,6 +11,7 @@
 struct WaspSegmentNailer
 {
   claws::vect<float, 2u> position;
+  claws::vect<float, 2u> direction;
   uint32_t waspSegmentId;
 };
 
@@ -232,7 +233,7 @@ namespace state
 						       nail.timer = 0;
 						       if (~nail.waspSegmentStick)
 							 {
-							   waspSegmentNailers.emplace_back(WaspSegmentNailer{nail.position - nail.speed.normalized() * getWaspSegment(nail.waspSegmentStick).radius, nail.waspSegmentStick});
+							   waspSegmentNailers.emplace_back(WaspSegmentNailer{nail.position - nail.speed.normalized() * getWaspSegment(nail.waspSegmentStick).radius, nail.speed, nail.waspSegmentStick});
 							 }
 						     });
   }
@@ -476,11 +477,19 @@ namespace state
 									  0});
     }
     for (auto &nail : nails)
-      displayData.rotatedAnims[size_t(SpriteId::Nail)].emplace_back(RotatedAnimInfo{{apply(nail.position - 0.02f),
-										     apply(nail.position + 0.02f),
+      displayData.rotatedAnims[size_t(SpriteId::Nail)].emplace_back(RotatedAnimInfo{{apply(nail.position - 0.05f),
+										     apply(nail.position + 0.05f),
 										     0},
 										    -nail.speed});
-    
+    for (auto &waspSegmentNailer : waspSegmentNailers)
+      {
+	auto position(waspSegmentNailer.position);
+
+	displayData.rotatedAnims[size_t(SpriteId::Nail)].emplace_back(RotatedAnimInfo{{apply(position - 0.05f),
+										     apply(position + 0.05f),
+										     0},
+	      -waspSegmentNailer.direction});
+      }
     displayData.bloodPos = bloodPos;
     displayData.bloodSpeed = bloodSpeed;
   }

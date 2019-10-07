@@ -40,7 +40,6 @@ inline Animation getAnimation()
       return loadAnim("resources/smolWasp-spriteSheet.bmp", 6);
     case SpriteId::Target:
       return loadAnim("resources/target.bmp", 1);
-      break;
     case SpriteId::Blood:
       return loadAnim("resources/blood.png", 1);
     case SpriteId::Gore:
@@ -62,13 +61,13 @@ inline Animation getAnimation()
     case SpriteId::Ceil:
       return loadAnim("resources/ceil.bmp", 1);
     case SpriteId::UpClosedWall:
-      return loadAnim("resources/upClosedWall.bmp", 1);
+      return loadAnim("resources/upClosedWall.png", 1);
     case SpriteId::DownClosedWall:
-      return loadAnim("resources/downClosedWall.bmp", 1);
+      return loadAnim("resources/downClosedWall.png", 1);
     case SpriteId::LeftClosedWall:
-      return loadAnim("resources/leftClosedWall.bmp", 1);
+      return loadAnim("resources/leftClosedWall.png", 1);
     case SpriteId::RightClosedWall:
-      return loadAnim("resources/rightClosedWall.bmp", 1);
+      return loadAnim("resources/rightClosedWall.png", 1);
     case SpriteId::Nail:
       return loadAnim("resources/nail.png", 1);
     case SpriteId::NailGun:
