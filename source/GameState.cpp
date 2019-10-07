@@ -513,18 +513,21 @@ namespace state
       {
 	if (waspSegment.unused)
 	  continue;
+	bool isAlly = &waspSegment - waspSegments.data() < 3;
 	claws::vect<float, 2u> invert{waspSegment.wasp && waspSegment.wasp->direction < 0 ? 1.0f : -1.0f, 1.0f};
 	switch (waspSegment.part)
 	  {
 	  case Part::head:
-	    displayData.anims[size_t(SpriteId::WaspHead)].emplace_back(AnimInfo{apply(waspSegment.position - invert * waspSegment.radius * 2.2f),
-										apply(waspSegment.position + invert * waspSegment.radius * 2.2f),
-										0});
+	    displayData.anims[size_t(isAlly ? SpriteId::WaspHead : SpriteId::WaspHeadEnemy)]
+	      .emplace_back(AnimInfo{apply(waspSegment.position - invert * waspSegment.radius * 2.2f),
+				     apply(waspSegment.position + invert * waspSegment.radius * 2.2f),
+				     0});
 	    break;
 	  case Part::body:
-	    displayData.anims[size_t(SpriteId::WaspBody)].emplace_back(AnimInfo{apply(waspSegment.position - invert * waspSegment.radius * 2.2f),
-										apply(waspSegment.position + invert * waspSegment.radius * 2.2f),
-										0});
+	    displayData.anims[size_t(isAlly ? SpriteId::WaspBody : SpriteId::WaspBodyEnemy)]
+	      .emplace_back(AnimInfo{apply(waspSegment.position - invert * waspSegment.radius * 2.2f),
+				     apply(waspSegment.position + invert * waspSegment.radius * 2.2f),
+				     0});
 	    if (waspSegment.wasp && waspSegment.wasp->gun)
 	      {
 		displayData.rotatedAnims[size_t(SpriteId::NailGun)].emplace_back(RotatedAnimInfo{{apply(waspSegment.position - invert * waspSegment.wasp->gun->radius - invert * claws::vect<float, 2>{waspSegment.radius, 0.0f}),
@@ -535,9 +538,10 @@ namespace state
 	      }
 	    break;
 	  case Part::abdomen:
-	    displayData.anims[size_t(SpriteId::WaspAbdomen)].emplace_back(AnimInfo{apply(waspSegment.position - invert * waspSegment.radius * 2.2f),
-										   apply(waspSegment.position + invert * waspSegment.radius * 2.2f),
-										   0});
+	    displayData.anims[size_t(isAlly ? SpriteId::WaspAbdomen : SpriteId::WaspAbdomenEnemy)]
+	      .emplace_back(AnimInfo{apply(waspSegment.position - invert * waspSegment.radius * 2.2f),
+				     apply(waspSegment.position + invert * waspSegment.radius * 2.2f),
+				     0});
 	    break;
 	  default:
 	    assert(!"Unhandled wasp segment type ( ? ? ? )");
