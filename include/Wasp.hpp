@@ -52,6 +52,7 @@ private:
   std::vector<uint32_t> victims;
   std::array<uint32_t, 3u> waspSegments;
   bool dead{false};
+  unsigned flyFrame{0};
 public:
   bool eating{false};
   float direction;
@@ -66,12 +67,19 @@ public:
   Wasp(state::GameState &gameState, claws::vect<float, 2u> position, float direction, float radius);
   Wasp(Wasp &&wasp) noexcept;
   ~Wasp() noexcept;
-  
+
   std::array<uint32_t, 3u> const &getWaspSegments() const noexcept
   {
     return waspSegments;
   }
-  
+
+  unsigned getFlyFrame() const noexcept
+  {
+    if (!jumpCooldown)
+      return 3;
+    return flyFrame % 5;
+  }
+
   uint32_t const &getHead() const noexcept
   {
     return waspSegments[0];

@@ -40,6 +40,7 @@ void Wasp::update(state::GameState &gameState) noexcept
 {
   if (dead)
     return;
+  flyFrame = (flyFrame + 1) % 20;
   {
     constexpr std::array<float, 3u> const ratio{{0.25f, 0.15f, 0.6f}};
     std::array<float, 3u> mass;
@@ -129,7 +130,7 @@ void Wasp::update(state::GameState &gameState) noexcept
 	  if (!(rand() & 255))
 	    gameState.spawnBlood(victimPart.position, (claws::vect<float, 2u>((float(rand() & 31) - 15.5f) * 0.012f, 0.1f)) * 0.01f);
 	  applyForce(head, victimPart, force * 0.2f);
-	  
+
 	  float mass = victimPart.getMass();
 
 	  float eaten = mass * 0.1f;
@@ -211,7 +212,7 @@ void Wasp::die(state::GameState &gameState) noexcept
 {
   if (dead)
     return ;
-      
+
   dead = true;
   for (auto &waspSegment : waspSegments)
     if (~waspSegment)

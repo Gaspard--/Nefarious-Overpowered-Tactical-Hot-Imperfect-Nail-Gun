@@ -35,7 +35,7 @@ inline Animation getAnimation()
     case SpriteId::WaspLegs:
       return loadAnim("resources/wasp legs.bmp", 1); // TODO
     case SpriteId::WaspWing:
-      return loadAnim("resources/wasp wings.png", 1);
+      return loadAnim("resources/wasp wings.png", 4);
     case SpriteId::Fireball :
       return loadAnim("resources/fireball-spriteSheet.bmp", 5);
     case SpriteId::Libeflux :

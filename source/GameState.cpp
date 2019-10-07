@@ -602,10 +602,11 @@ namespace state
 	      .emplace_back(AnimInfo{apply(waspSegment.position - invert * waspSegment.radius * 2.2f),
 				     apply(waspSegment.position + invert * waspSegment.radius * 2.2f),
 				     0});
-	    displayData.anims[size_t(SpriteId::WaspWing)]
-	      .emplace_back(AnimInfo{apply(waspSegment.position - invert * waspSegment.radius * 2.2f),
-				     apply(waspSegment.position + invert * waspSegment.radius * 2.2f),
-				     0});
+	    if (waspSegment.wasp)
+	      displayData.anims[size_t(SpriteId::WaspWing)]
+		.emplace_back(AnimInfo{apply(waspSegment.position - invert * waspSegment.radius * 2.2f),
+				       apply(waspSegment.position + invert * waspSegment.radius * 2.2f),
+				       waspSegment.wasp->getFlyFrame()});
 	    if (waspSegment.wasp && waspSegment.wasp->gun)
 	      {
 		displayData.rotatedAnims[size_t(SpriteId::NailGun)].emplace_back(RotatedAnimInfo{{apply(waspSegment.position - invert * waspSegment.wasp->gun->radius - invert * claws::vect<float, 2>{waspSegment.radius, 0.0f}),
