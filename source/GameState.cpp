@@ -92,7 +92,7 @@ namespace state
 	auto &aiInfo = *aiInfoIt;
 	if (aiInfo.noTarget)
 	  continue;
-	
+
 	(*it)->eating = aiInfo.eat;
 	if ((getWaspSegment((*it)->getBody()).position[1] < aiInfo.target[1]) != aiInfo.flee)
 	  (*it)->fly(*this);
@@ -211,7 +211,7 @@ namespace state
 			{
 			  aiInfo.target = getWaspSegment(index).position;
 			  aiInfo.eat = true;
-			  aiInfo.flee = false;	
+			  aiInfo.flee = false;
 			  aiInfo.noTarget = false;
 			}
 		      else if (getWaspSegment(index).wasp->eating && (getWaspSegment(index).radius > head.radius))
@@ -325,7 +325,7 @@ namespace state
 	  for (tile[1] = min[1]; tile[1] <= max[1]; ++tile[1])
 	    {
 	      auto &output(waspPartIndexMap[uint32_t(tile[0]) + (size_t(tile[1]) << 32l)]);
-	      
+
 	      if (!output.empty())
 		goto fail;
 	    }
@@ -335,7 +335,7 @@ namespace state
 				    1.0f,
 				    radius));
       }
-      
+
     fail:
       ;
 
@@ -408,7 +408,7 @@ namespace state
 
     for (auto &wasp : wasps)
       wasp->update(*this);
-    
+
     for (auto gun = guns.begin() ; gun != guns.end() ; ++gun) {
       (*gun)->update();
       for (auto &wasp : wasps)
@@ -499,7 +499,7 @@ namespace state
 	bloodSpeed[i][1] -= 0.001f;
       }
 
-    
+
     if (false) // dead
       return GAME_OVER_STATE;
     else if (won)
@@ -599,6 +599,10 @@ namespace state
 	    break;
 	  case Part::body:
 	    displayData.anims[size_t(isAlly ? SpriteId::WaspBody : SpriteId::WaspBodyEnemy)]
+	      .emplace_back(AnimInfo{apply(waspSegment.position - invert * waspSegment.radius * 2.2f),
+				     apply(waspSegment.position + invert * waspSegment.radius * 2.2f),
+				     0});
+	    displayData.anims[size_t(SpriteId::WaspWing)]
 	      .emplace_back(AnimInfo{apply(waspSegment.position - invert * waspSegment.radius * 2.2f),
 				     apply(waspSegment.position + invert * waspSegment.radius * 2.2f),
 				     0});
