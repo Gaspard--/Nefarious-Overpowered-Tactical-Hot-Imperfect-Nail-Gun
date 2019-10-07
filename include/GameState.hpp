@@ -33,6 +33,7 @@ namespace state
     float zoom{0.01f};
   public:
     float screenShake{0.0f};
+    float score{0.0f};
   private:
     bool won{false};
     bool gameOver{false};
@@ -88,6 +89,7 @@ namespace state
     void removeWaspSegment(size_t index);
 
     void addNail(claws::vect<float, 2u> position, claws::vect<float, 2u> speed, Wasp *wasp);
+    void creditScore(Wasp *wasp, float score) noexcept;
 
     claws::vect<float, 2u> getOffset() const noexcept;
     float getZoom() const noexcept;

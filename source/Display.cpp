@@ -355,7 +355,7 @@ void Display::renderHud(float bigWaspSize, uint32_t score, float heat, std::stri
   (void)bigWaspSize;
   //renderText("  Size  : " + std::to_string(uint32_t(bigWaspSize * 1000.0f)), 400, {0.05f, 0.05f}, {1.0f, 0.855f}, {1.0f, 1.0f, 1.0f});
   //renderText("  Hps   : " + std::to_string(666), 400, {0.05f, 0.05f}, {1.0f, 0.755f}, {1.0f, 1.0f, 1.0f});
-  //renderText("  Score : " + std::to_string(score), 400, {0.05f, 0.05f}, {1.0f, 0.655f}, {1.0f, 1.0f, 1.0f});
+  renderText("  Score : " + std::to_string(score), 400, {0.05f, 0.05f}, {1.0f, 0.655f}, {1.0f, 1.0f, 1.0f});
   std::string progress_bar{"["};
   for (unsigned i = 0 ; i < 10 ; ++i) {
     if (i < heat * 10.f)
@@ -534,7 +534,7 @@ void Display::render(DisplayData const &data)
     renderColors(data.colors);
   // renderColors({{-dim, claws::vect<float, 2u>(-1.0f, 1.0f), claws::vect<float, 4u>{0.0f, 0.0f, 0.0f, 1.0f}},
   // 		{dim, claws::vect<float, 2u>(1.0f, -1.0f), claws::vect<float, 4u>{0.0f, 0.0f, 0.0f, 1.0f}}});
-  renderHud(666.0f, 666.0f, data.heat, data.stringedTime, data.timer);
+  renderHud(666.0f, data.score, data.heat, data.stringedTime, data.timer);
   if (data.gameOverHud)
     renderGameOver(666.0f, data.stringedTime, data.win);
   if (data.tuto)

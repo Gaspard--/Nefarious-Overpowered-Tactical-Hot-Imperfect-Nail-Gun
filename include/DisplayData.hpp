@@ -30,6 +30,7 @@ struct DisplayData
 {
   float timer;
   float heat;
+  int score;
   std::string stringedTime;
   std::vector<ColorInfo> colors{};
   std::array<std::vector<AnimInfo>, size_t(SpriteId::SpriteCount)> anims;

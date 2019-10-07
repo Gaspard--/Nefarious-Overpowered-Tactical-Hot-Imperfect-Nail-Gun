@@ -62,6 +62,7 @@ private:
   float inBelly{0.0f};
 public:
   std::unique_ptr<Gun> gun;
+  bool nailed = false;
 
 public:
   Wasp(state::GameState &gameState, claws::vect<float, 2u> position, float direction, float radius);
