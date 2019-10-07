@@ -31,11 +31,14 @@ namespace state
     float timer{0.0f};
     claws::vect<float, 2> offset{0.0f, 0.0f};
     float zoom{0.01f};
+    unsigned int frozenTime;
   public:
     float screenShake{0.0f};
   private:
     bool won{false};
     bool gameOver{false};
+    bool reset{false};
+    unsigned resetCooldown{200};
 
     bool firing{false};
     bool eating{false};
@@ -74,7 +77,7 @@ namespace state
     void getObjectsToRender(DisplayData &display) override;
 
     void spawnBlood(claws::vect<float, 2u> position, claws::vect<float, 2u> speed);
-    
+
     float getGameSpeed();
 
     uint32_t addSegment(WaspSegment &&waspSegment);

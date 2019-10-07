@@ -384,8 +384,17 @@ namespace state
   }
 
 
-  StateType GameState::update(unsigned int &)
+  StateType GameState::update(unsigned int &time)
   {
+    if (gameOver) {
+      time = frozenTime;
+      if (resetCooldown)
+	--resetCooldown;
+      if (reset)
+	return GAME_STATE;
+    }
+    else
+      frozenTime = time;
     timer += getGameSpeed();
     SoundHandler::getInstance().setGlobalPitch(getGameSpeed());
     auto &player(wasps.front());
@@ -502,8 +511,7 @@ namespace state
       }
 
 
-    if (wasps.front()->canBeRemoved())
-      return GAME_OVER_STATE;
+    gameOver |= wasps.front()->canBeRemoved();
     if (won)
       return WIN_STATE;
     return StateType::CONTINUE;
@@ -511,6 +519,7 @@ namespace state
 
   void GameState::handleKey(GLFWwindow *, input::Key)
   {
+      reset = !resetCooldown;
   }
 
   void GameState::handleMouse(input::Input const &input, GLFWwindow *, input::Mouse mouse)
@@ -523,6 +532,7 @@ namespace state
 
   void GameState::handleButton(GLFWwindow *, input::Button button)
   {
+    reset = !resetCooldown;
     if (button.button == GLFW_MOUSE_BUTTON_RIGHT && button.action == GLFW_PRESS)
       {
 	// handle press
