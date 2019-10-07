@@ -76,7 +76,9 @@ namespace state
 	  continue;
 	// reset state & ai not linked to player
 	auto &aiInfo = *aiInfoIt;
+	//std::cout << "target:" << aiInfo.target[0] << ", " << aiInfo.target[1] << " | eating " << aiInfo.eat << " | fleeing " << aiInfo.flee << std::endl;
 
+	
 	(*it)->eating = aiInfo.eat;
 	if ((getWaspSegment((*it)->getBody()).position[1] < aiInfo.target[1]) != aiInfo.flee)
 	  (*it)->fly(*this);
@@ -102,7 +104,7 @@ namespace state
     for (uint32_t i = 0; i < waspSegments.size(); ++i)
       {
 	auto &waspSegment(waspSegments[i]);
-	if (waspSegment.disableCollision)
+	if (waspSegment.unused || waspSegment.disableCollision)
 	  continue;
 
 	claws::vect<int32_t, 2> min;
@@ -178,8 +180,8 @@ namespace state
 	claws::vect<int32_t, 2> max;
 	for (int j = 0; j < 2; ++j)
 	  {
-	    min[j] = int32_t(std::floor((head.position[j] - head.radius * 20.0f) / gridSize));
-	    max[j] = int32_t(std::floor((head.position[j] + head.radius * 20.0f) / gridSize));
+	    min[j] = int32_t(std::floor((head.position[j] - head.radius * 10.0f) / gridSize));
+	    max[j] = int32_t(std::floor((head.position[j] + head.radius * 10.0f) / gridSize));
 	  }
 	claws::vect<int32_t, 2> tile;
 	for (tile[0] = min[0]; tile[0] <= max[0]; ++tile[0])
@@ -189,30 +191,41 @@ namespace state
 
 	      for (auto const &index : output)
 		{
-		  if (getWaspSegment(index).wasp != wasp.get() && aiInfo.noTarget || (aiInfo.target - head.position).length2() > (getWaspSegment(index).position - head.position).length2())
+		  if (getWaspSegment(index).wasp != wasp.get() && (aiInfo.noTarget || (aiInfo.target - head.position).length2() > (getWaspSegment(index).position - head.position).length2()))
 		    {
-		      aiInfo.noTarget = false;
 		      if (!getWaspSegment(index).wasp)
 			{
 			  aiInfo.target = getWaspSegment(index).position;
 			  aiInfo.eat = true;
-			  aiInfo.flee = false;
+			  aiInfo.flee = false;	
+			  aiInfo.noTarget = false;
 			}
-		      else if (!getWaspSegment(index).wasp && getWaspSegment(index).radius > head.radius)
+		      else if (getWaspSegment(index).wasp->eating && (getWaspSegment(index).radius > head.radius))
 			{
 			  aiInfo.target = getWaspSegment(index).position;
 			  aiInfo.eat = false;
 			  aiInfo.flee = true;
+			  aiInfo.noTarget = false;
 			}
 		      else if (getWaspSegment(index).wasp == wasps.front().get())
 			{
 			  aiInfo.target = getWaspSegment(index).position;
 			  aiInfo.eat = true;
 			  aiInfo.flee = false;
+			  aiInfo.noTarget = false;
 			}
 		    }
 		}
 	    }
+	for (auto const &gun : guns)
+	  if ((aiInfo.target - head.position).length2() > (gun->position - head.position).length2())
+	    {
+	      aiInfo.target = gun->position;
+	      aiInfo.eat = false;
+	      aiInfo.flee = false;
+	      aiInfo.noTarget = false;
+	    }
+
       }
     for (auto &nail : nails)
       {
@@ -597,7 +610,7 @@ namespace state
     auto &segment(getWaspSegment(index));
     if (Wasp *wasp = segment.wasp)
       wasp->removePart(*this, segment.part);
-    segment.disableCollision = true;
+    //segment.disableCollision = true;
     segment.unused = true;
     waspSegmentNailers.erase(std::remove_if(waspSegmentNailers.begin(), waspSegmentNailers.end(),
 					    [&](auto &nailer) noexcept

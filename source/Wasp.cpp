@@ -192,12 +192,12 @@ void Wasp::fly(state::GameState &gameState) noexcept
   if (dead)
     return;
   if (!jumpCooldown)
-    flyPower = 15;
+    flyPower = 30;
   if (!!flyPower)
     {
       jumpCooldown = 30;
       --flyPower;
-      gameState.getWaspSegment(getBody()).speed[1] += 0.02f;
+      gameState.getWaspSegment(getBody()).speed[1] += 0.011f;
     }
 }
 
@@ -229,7 +229,7 @@ void Wasp::swallow(state::GameState &gameState, uint32_t index)
   if (dead)
     return;
   victims.emplace_back(index);
-  gameState.getWaspSegment(index).disableCollision = true;
+  //gameState.getWaspSegment(index).disableCollision = true;
 }
 
 void Wasp::die(state::GameState &gameState) noexcept
@@ -260,7 +260,7 @@ void Wasp::removePart(state::GameState &gameState, Part segment) noexcept
   waspSegments[size_t(segment)] = ~0u;
   for (auto &victim : victims)
     {
-      gameState.getWaspSegment(victim).disableCollision = false;
+      //gameState.getWaspSegment(victim).disableCollision = false;
     }
   victims.clear();
 
@@ -274,5 +274,7 @@ void WaspSegment::update() noexcept
     speed = speed.normalized() * radius * 0.5f;
   position += speed;
   speed *= 0.95f;
-  speed[1] += -0.00025f;
+  speed[1] += -0.0003f;
+  if (part == Part::body)
+    speed[1] += -0.0003f;
 }
