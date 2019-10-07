@@ -9,9 +9,9 @@ Wasp::Wasp(Wasp &&wasp) noexcept = default;
 Wasp::Wasp(state::GameState &gameState, claws::vect<float, 2u> position, float direction, float radius)
   : waspSegments({
 		  gameState.addSegment(WaspSegment{position, claws::vect<float, 2>{0.0f, 0.0f}, radius, Part::head, this}),
-		  gameState.addSegment(WaspSegment{position - claws::vect<float, 2u>{direction * radius * 2.0f, 0.03f},
+		  gameState.addSegment(WaspSegment{position - claws::vect<float, 2u>{direction * radius, 0.03f},
 						   claws::vect<float, 2>{0.0f, 0.0f}, radius, Part::body, this}),
-		  gameState.addSegment(WaspSegment{position - claws::vect<float, 2u>{direction * radius * 2.0f, 0.03f} * 2.0f,
+		  gameState.addSegment(WaspSegment{position - claws::vect<float, 2u>{direction * radius, 0.03f} * 2.0f,
 						   claws::vect<float, 2>{0.0f, 0.0f}, radius, Part::abdomen, this}),
     })
   , direction(direction)
@@ -120,18 +120,10 @@ void Wasp::update(state::GameState &gameState) noexcept
 	WaspSegment &waspSegment0(gameState.getWaspSegment(waspSegments[i]));
 	WaspSegment &waspSegment1(gameState.getWaspSegment(waspSegments[i + 1]));
 
-	auto diff(waspSegment0.position - waspSegment1.position - claws::vect<float, 2u>{direction * (waspSegment0.radius + waspSegment1.radius), 0.03f});
+	auto diff(waspSegment0.position - waspSegment1.position - claws::vect<float, 2u>{direction * (waspSegment0.radius + waspSegment1.radius), 0.03f} * 0.9f);
 	auto springSize((waspSegment0.radius + waspSegment1.radius) * 0.08f);
 	auto force(springForce(diff, waspSegment0.speed - waspSegment1.speed, springSize));
 
-	// if (strength >= waspSegment0.radius + waspSegment1.radius)
-	// 	{
-	// 	  waspSegment0.speed += dir * strength * 9.0f;
-	// 	  waspSegment1.speed -= dir * strength * 9.0f;
-	// 	  gameState.getWaspSegment(waspSegments[i * 2]).wasp = nullptr;
-	// 	  waspSegments[i * 2] = ~0u;
-	// 	}
-	// else
 	applyForce(waspSegment0, waspSegment1, force);
       }
       {
@@ -139,18 +131,17 @@ void Wasp::update(state::GameState &gameState) noexcept
 	WaspSegment &waspSegment1(gameState.getWaspSegment(waspSegments[i + 1]));
 
 	auto diff(waspSegment0.position - waspSegment1.position);
-	auto springSize(waspSegment0.radius + waspSegment1.radius);
+	auto springSize((waspSegment0.radius + waspSegment1.radius) * 0.9f);
 	auto force(springForce(diff, waspSegment0.speed - waspSegment1.speed, springSize));
 
-	// if (strength >= waspSegment0.radius + waspSegment1.radius)
-	// 	{
-	// 	  waspSegment0.speed += dir * strength * 9.0f;
-	// 	  waspSegment1.speed -= dir * strength * 9.0f;
-	// 	  gameState.getWaspSegment(waspSegments[i * 2]).wasp = nullptr;
-	// 	  waspSegments[i * 2] = ~0u;
-	// 	}
-	// else
-	applyForce(waspSegment0, waspSegment1, force);
+	if (diff.length2() >= (waspSegment0.radius + waspSegment1.radius) * (waspSegment0.radius + waspSegment1.radius) * 16.0f)
+	  {
+	    applyForce(waspSegment0, waspSegment1, -force * 5.0f);
+	    die(gameState);
+	    return ;
+	  }
+	else
+	  applyForce(waspSegment0, waspSegment1, force);
       }
     }
   if (eating && ~getHead() && ~getBody() && ~getAbdommen())
@@ -206,7 +197,7 @@ void Wasp::fly(state::GameState &gameState) noexcept
     {
       jumpCooldown = 30;
       --flyPower;
-      gameState.getWaspSegment(getBody()).speed[1] += 0.015f;
+      gameState.getWaspSegment(getBody()).speed[1] += 0.0075f;
     }
 }
 
@@ -245,6 +236,7 @@ void Wasp::die(state::GameState &gameState) noexcept
 {
   if (dead)
     return ;
+      
   dead = true;
   for (auto &waspSegment : waspSegments)
     if (~waspSegment)
@@ -257,6 +249,13 @@ void Wasp::die(state::GameState &gameState) noexcept
 
 void Wasp::removePart(state::GameState &gameState, Part segment) noexcept
 {
+  if (segment == Part::body && gun)
+    {
+      gun->position = gameState.getWaspSegment(getBody()).position;
+      gun->speed = {0.0f, 0.01f};
+      gameState.looseGun(std::move(gun));
+    }
+
   gameState.getWaspSegment(waspSegments[size_t(segment)]).wasp = nullptr;
   waspSegments[size_t(segment)] = ~0u;
   for (auto &victim : victims)
@@ -275,5 +274,5 @@ void WaspSegment::update() noexcept
     speed = speed.normalized() * radius * 0.5f;
   position += speed;
   speed *= 0.95f;
-  speed[1] += -0.0005f;
+  speed[1] += -0.00025f;
 }

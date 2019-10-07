@@ -15,6 +15,9 @@ class Nail;
 struct WaspSegmentNailer;
 struct WaspToWaspNailer;
 
+struct AiInfo;
+
+
 namespace state
 {
   class GameState : public State
@@ -45,6 +48,8 @@ namespace state
     std::vector<WaspSegmentNailer> waspSegmentNailers;
     std::vector<WaspToWaspNailer> waspToWaspNailers;
     std::vector<std::unique_ptr<Wasp>> wasps;
+    std::vector<AiInfo> aiInfos; // stored here to avoid reallocation
+
     std::vector<std::unique_ptr<Gun>> guns;
 
     // blood related fields
