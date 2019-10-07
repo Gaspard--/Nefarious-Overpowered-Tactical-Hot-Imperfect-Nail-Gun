@@ -502,9 +502,8 @@ namespace state
       }
 
     
-    if (false) // dead
-      return GAME_OVER_STATE;
-    else if (won)
+    gameOver |= wasps.front()->canBeRemoved(); // dead
+    if (won)
       return WIN_STATE;
     return StateType::CONTINUE;
   }
@@ -578,6 +577,7 @@ namespace state
 	       {
 		 return (position + offset) * zoom;
 	       });
+    displayData.gameOverHud = gameOver;
     displayData.mapSize = claws::vect_cast<int>(claws::vect<float, 2u>{4.0f, 2.0f} / getZoom() / tileSize) + 4;
     map.fillDisplayData(displayData.mapOffset, displayData.mapSize, displayData.mapData);
     displayData.offset = offset; // for terrain display, entities are pre-scaled
