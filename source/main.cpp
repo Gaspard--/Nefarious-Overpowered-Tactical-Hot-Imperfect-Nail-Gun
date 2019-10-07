@@ -45,7 +45,7 @@ int main()
       }
     } SoundHandlerIniter;
 
-    // SoundHandler::getInstance().playMainMusic();
+    SoundHandler::getInstance().playMainMusic();
 
     std::mutex lock;
     std::thread thread([&logic, &lock, &input]() {
