@@ -19,39 +19,13 @@ Wasp::Wasp(state::GameState &gameState, claws::vect<float, 2u> position, float d
 {
 }
 
-// void doSprint(WaspSegment &a, WaspSegment &b, claws::vect<float, 2u> diff, float springSize) noexcept
-// {
-//   WaspSegment &waspSegment0(gameState.getWaspSegment(waspSegments[i]));
-//   WaspSegment &waspSegment1(gameState.getWaspSegment(waspSegments[i + 1]));
-
-//   auto diff(waspSegment0.position - waspSegment1.position - claws::vect<float, 2u>{direction * (waspSegment0.radius + waspSegment1.radius), 0.03f});
-//   auto dir(diff.normalized());
-//   auto len(std::sqrt(diff.length2()));
-//   auto speedDiff(dir.scalar(waspSegment0.speed - waspSegment1.speed));
-//   auto springSize((waspSegment0.radius + waspSegment1.radius) * 0.08f);
-//   auto strength(((len - springSize) * 0.07f + speedDiff * 0.3f));
-
-//   // if (strength >= waspSegment0.radius + waspSegment1.radius)
-//   // 	{
-//   // 	  waspSegment0.speed += dir * strength * 9.0f;
-//   // 	  waspSegment1.speed -= dir * strength * 9.0f;
-//   // 	  gameState.getWaspSegment(waspSegments[i * 2]).wasp = nullptr;
-//   // 	  waspSegments[i * 2] = ~0u;
-//   // 	}
-//   // else
-//   {
-//     waspSegment0.speed -= dir * strength;
-//     waspSegment1.speed += dir * strength;
-//   }
-// }
-
 claws::vect<float, 2u> springForce(claws::vect<float, 2u> diff, claws::vect<float, 2u> speedDiff, float springSize) noexcept
 {
   auto len(std::sqrt(diff.length2()));
   auto dir(diff.normalized());
   auto speedDiffProj(dir.scalar(speedDiff));
 
-  return dir * ((len - springSize) * 0.07f + speedDiffProj * 0.3f);
+  return dir * ((len - springSize) * 0.14f + speedDiffProj * 0.3f);
 }
 
 void applyForce(WaspSegment &a, WaspSegment &b, claws::vect<float, 2u> force) noexcept
@@ -120,7 +94,7 @@ void Wasp::update(state::GameState &gameState) noexcept
 	WaspSegment &waspSegment0(gameState.getWaspSegment(waspSegments[i]));
 	WaspSegment &waspSegment1(gameState.getWaspSegment(waspSegments[i + 1]));
 
-	auto diff(waspSegment0.position - waspSegment1.position - claws::vect<float, 2u>{direction * (waspSegment0.radius + waspSegment1.radius), 0.03f} * 0.9f);
+	auto diff(waspSegment0.position - waspSegment1.position - claws::vect<float, 2u>{direction * (waspSegment0.radius + waspSegment1.radius), 0.0f} * 0.9f);
 	auto springSize((waspSegment0.radius + waspSegment1.radius) * 0.08f);
 	auto force(springForce(diff, waspSegment0.speed - waspSegment1.speed, springSize));
 
@@ -152,21 +126,22 @@ void Wasp::update(state::GameState &gameState) noexcept
 	  auto &head(gameState.getWaspSegment(getHead()));
 	  auto force(springForce(head.position - victimPart.position, head.speed - victimPart.speed, 0.0f));
 
-	  gameState.spawnBlood(victimPart.position, (claws::vect<float, 2u>((float(rand() & 3) - 1.5f) * 0.05f, 0.06f)) * 0.1f);
-	  applyForce(head, victimPart, force);
-
+	  if (!(rand() & 255))
+	    gameState.spawnBlood(victimPart.position, (claws::vect<float, 2u>((float(rand() & 31) - 15.5f) * 0.012f, 0.1f)) * 0.01f);
+	  applyForce(head, victimPart, force * 0.2f);
+	  
 	  float mass = victimPart.getMass();
 
 	  float eaten = mass * 0.1f;
 	  if (victimPart.radius < 0.001f || victimPart.radius < head.radius * 0.5f) {
 	    eaten = mass;
 	    for (int poi = 0; poi < 8; ++poi)
-	      gameState.spawnBlood(victimPart.position, (claws::vect<float, 2u>((float(rand() & 3) - 1.5f) * 0.05f, 0.06f)) * 0.01f);
+	      gameState.spawnBlood(victimPart.position, (claws::vect<float, 2u>((float(rand() & 31) - 15.5f) * 0.03f, (float(rand() & 31)) * 0.03f)) * 0.03f);
 	    gameState.removeWaspSegment(victim);
-	  } else if (victimPart.radius < head.radius) {
-	    eaten = mass * 0.1f;
+	  // } else if (victimPart.radius < head.radius) {
+	  //   eaten = mass * 0.1f;
 	  } else {
-	    eaten = head.getMass() * 0.05f;
+	    eaten = head.getMass() * 0.0001f;
 	  }
 
 	  victimPart.setMass(mass - eaten);

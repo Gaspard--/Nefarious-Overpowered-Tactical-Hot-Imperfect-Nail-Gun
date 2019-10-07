@@ -60,6 +60,7 @@ namespace state
     void ai();
     void terrainCheck();
     void collisionCheck();
+    void removeToFar();
 
   public:
     GameState();
