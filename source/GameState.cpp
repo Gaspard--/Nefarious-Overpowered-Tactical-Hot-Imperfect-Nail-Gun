@@ -40,13 +40,13 @@ namespace state
 				claws::vect<float, 2u>{0.9f, 1.5f},
 				1.0f,
 				0.03f));
-    for (float i = 0.0f; i < 15.5f; ++i)
-      {
-    	wasps.emplace_back(new Wasp(*this,
-    				    claws::vect<float, 2u>{0.6f * i + 2.0f, 1.0f},
-    				    1.0f,
-    				    0.01f * (2.0f + i)));
-      }
+    // for (float i = 0.0f; i < 15.5f; ++i)
+    //   {
+    // 	wasps.emplace_back(new Wasp(*this,
+    // 				    claws::vect<float, 2u>{0.6f * i + 2.0f, 1.0f},
+    // 				    1.0f,
+    // 				    0.01f * (2.0f + i)));
+    //   }
     wasps.front()->pickUpGun(std::unique_ptr<Gun>(guns::makeNothing()));
     bloodPos.resize(bloodCount);
     bloodSpeed.resize(bloodCount);
@@ -59,6 +59,22 @@ namespace state
     return gameSpeed;
   }
 
+  void GameState::removeToFar()
+  {
+    for (uint32_t i = 3; i != waspSegments.size(); ++i)
+      {
+	if (!getWaspSegment(i).unused && (getWaspSegment(i).position - getOffset()).length2() > 16.0f * zoom)
+	  {
+	    if (Wasp *wasp = getWaspSegment(i).wasp)
+	      {
+		wasp->die(*this);
+	      }
+	    else
+	      removeWaspSegment(i);
+	  }
+      }
+  }
+
   uint32_t GameState::addSegment(WaspSegment &&waspSegment)
   {
     waspSegments.emplace_back(waspSegment);
@@ -67,17 +83,15 @@ namespace state
 
   void GameState::ai()
   {
-    auto &player(wasps.front());
-
     auto aiInfoIt = aiInfos.begin();
-    for (auto it = wasps.begin() + 1; it != wasps.end(); ++it, ++aiInfoIt)
+    for (auto it = wasps.begin() + 1; aiInfoIt != aiInfos.end(); ++it, ++aiInfoIt)
       {
-	if ((*it)->canBeRemoved() || aiInfoIt->noTarget)
+	if ((*it)->canBeRemoved())
 	  continue;
 	// reset state & ai not linked to player
 	auto &aiInfo = *aiInfoIt;
-	//std::cout << "target:" << aiInfo.target[0] << ", " << aiInfo.target[1] << " | eating " << aiInfo.eat << " | fleeing " << aiInfo.flee << std::endl;
-
+	if (aiInfo.noTarget)
+	  continue;
 	
 	(*it)->eating = aiInfo.eat;
 	if ((getWaspSegment((*it)->getBody()).position[1] < aiInfo.target[1]) != aiInfo.flee)
@@ -279,6 +293,53 @@ namespace state
 		}
 	    }
       }
+
+    // try to spawn wasp. Need collision info.
+    {
+      float angle = float(rand());
+
+      auto pos = claws::vect<float, 2u>(std::sin(angle), std::cos(angle)) * 3.0f * zoom;
+
+      float radius = float(unsigned (rand()) % 100u) * 0.01f;
+
+      radius *= radius;
+      radius *= 0.1f;
+      radius += 0.01f;
+
+      {
+	bool fail = false;
+	map.collision(pos, {0.0f, 0.0f}, radius, [&fail](auto const &){ fail = true; });
+	if (fail)
+	  goto fail;
+      }
+      {
+	claws::vect<int32_t, 2> min;
+	claws::vect<int32_t, 2> max;
+	for (int j = 0; j < 2; ++j)
+	  {
+	    min[j] = int32_t(std::floor((pos[j] - radius * 2.0f) / gridSize));
+	    max[j] = int32_t(std::floor((pos[j] + radius * 2.0f) / gridSize));
+	  }
+	claws::vect<int32_t, 2> tile;
+	for (tile[0] = min[0]; tile[0] <= max[0]; ++tile[0])
+	  for (tile[1] = min[1]; tile[1] <= max[1]; ++tile[1])
+	    {
+	      auto &output(waspPartIndexMap[uint32_t(tile[0]) + (size_t(tile[1]) << 32l)]);
+	      
+	      if (!output.empty())
+		goto fail;
+	    }
+
+	wasps.emplace_back(new Wasp(*this,
+				    pos,
+				    1.0f,
+				    radius));
+      }
+      
+    fail:
+      ;
+
+    }
   }
 
   void GameState::terrainCheck()
