@@ -445,6 +445,9 @@ namespace state
 	if (firing)
 	  player->fire(*this, (target / getZoom() - getOffset()));
 	player->eating = eating;
+	getWaspSegment(player->getBody()).radius *= 0.9998f;
+	getWaspSegment(player->getHead()).radius *= 0.9998f;
+	getWaspSegment(player->getAbdommen()).radius *= 0.9998f;
       }
     for (auto &waspSegment : waspSegments)
       waspSegment.update();
@@ -514,7 +517,7 @@ namespace state
       }
 
 
-    gameOver |= wasps.front()->canBeRemoved();
+    gameOver |= wasps.front()->canBeRemoved() || wasps.front()->nailed;
     if (won)
       return WIN_STATE;
     return StateType::CONTINUE;
