@@ -10,7 +10,7 @@
 
 Logic::Logic()
   : running(true)
-  , state(new state::TutoState())
+  , state(new state::GameState())
 {}
 
 std::string Logic::getTime(void) const
