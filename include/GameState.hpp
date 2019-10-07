@@ -35,6 +35,7 @@ namespace state
     float screenShake{0.0f};
   private:
     bool won{false};
+    bool gameOver{false};
 
     bool firing{false};
     bool eating{false};

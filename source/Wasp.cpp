@@ -154,6 +154,10 @@ void Wasp::update(state::GameState &gameState) noexcept
 								     return gameState.getWaspSegment(victim).unused;
 								   }), victims.end());
     }
+  else
+    {
+      victims.clear();
+    }
 
   jumpCooldown -= !!jumpCooldown;
   if (gun)

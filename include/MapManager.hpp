@@ -13,7 +13,8 @@ class MapManager
   claws::vect<int, 2> position{0, 0};
   claws::vect<float, 2> winSize;
 
-  void generateChunk(uint32_t leftExp, uint32_t rightExp, uint32_t upExp, uint32_t downExp);
+  void generateRoom(int, int, int);
+  void initProcGenMap();
   void initTestMap();
 
 public:

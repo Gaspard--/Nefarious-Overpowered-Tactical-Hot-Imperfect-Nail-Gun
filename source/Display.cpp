@@ -385,8 +385,8 @@ void Display::renderHud(float bigWaspSize, uint32_t score, float heat, std::stri
 void Display::renderGameOver(uint32_t score, std::string const &strTime, bool win)
 {
   renderColors({{claws::vect<float, 2u>(-1.0f, 1.0f), claws::vect<float, 2u>(1.0f, -1.0f),
-	  win ? claws::vect<float, 4u>{0.06f, 0.06f, 0.04f, 0.8f}
-	: claws::vect<float, 4u>{0.5f, 0.01f, 0.04f, 0.8f}}});
+	  win ? claws::vect<float, 4u>{0.06f, 0.06f, 0.04f, 0.4f}
+	: claws::vect<float, 4u>{0.5f, 0.01f, 0.04f, 0.4f}}});
   renderText(win ? " You Win" : "Game Over", 300, {0.07f, 0.07f}, {-0.18f, 0.25f}, {1.0f, 1.0f, 1.0f});
   renderText("Final Time  " + strTime, 200, {0.05f, 0.05f}, {-0.18f, 0.05f}, {1.0f, 1.0f, 1.0f});
   renderText("Final Score " + std::to_string(score), 200, {0.05f, 0.05f}, {-0.18f, -0.05f}, {1.0f, 1.0f, 1.0f});
