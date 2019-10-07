@@ -264,7 +264,7 @@ namespace state
     for (auto gun = guns.begin() ; gun != guns.end() ; ++gun) {
       (*gun)->update();
       for (auto &wasp : wasps)
-	if ((*gun)->getHeat() < 0.1f && ((*gun)->position - getWaspSegment(wasp->getBody()).position).length2() < pow((*gun)->radius + getWaspSegment(wasp->getBody()).radius, 2.0)) {
+	if (!wasp->canBeRemoved() && (*gun)->getHeat() < 0.1f && ((*gun)->position - getWaspSegment(wasp->getBody()).position).length2() < pow((*gun)->radius + getWaspSegment(wasp->getBody()).radius, 2.0)) {
 	  wasp->pickUpGun(std::move((*gun)));
 	  break;
 	}
