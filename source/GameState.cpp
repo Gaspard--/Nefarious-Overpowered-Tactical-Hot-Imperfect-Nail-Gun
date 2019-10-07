@@ -38,6 +38,8 @@ namespace state
     				    0.01f * (2.0f + i)));
       }
     wasps.front()->pickUpGun(std::unique_ptr<Gun>(guns::makeNothing()));
+    bloodPos.resize(bloodCount);
+    bloodSpeed.resize(bloodCount);
   }
 
   GameState::~GameState() noexcept = default;
@@ -188,6 +190,8 @@ namespace state
 		      nail.speed *= 0.8f;
 		      nail.timer = std::min(nail.timer, 2u);
 		      nail.waspSegmentStick = index;
+		      for (int poi = 0; poi < 5; ++poi)
+			spawnBlood(nail.position, (nail.speed + claws::vect<float, 2u>((float(rand() & 3) - 1.5f) * 0.05f, 0.06f)) * 0.1f);
 		    }
 		}
 	    }
@@ -260,7 +264,7 @@ namespace state
 
     for (auto &wasp : wasps)
       wasp->update(*this);
-
+    
     for (auto gun = guns.begin() ; gun != guns.end() ; ++gun) {
       (*gun)->update();
       for (auto &wasp : wasps)
@@ -333,6 +337,21 @@ namespace state
 			       {
 				 return nail.canBeRemoved();
 			       }), nails.end());
+
+
+    for (size_t i(0u); i != bloodPos.size(); ++i)
+      {
+	map.collision(bloodPos[i], bloodSpeed[i], 0.0f,
+		      [&](claws::vect<float, 2u> collisionPoint)
+		      {
+			bloodSpeed[i] *= 0.5f;
+		      });
+
+	bloodPos[i] += bloodSpeed[i];
+	bloodSpeed[i][1] -= 0.001f;
+      }
+
+    
     if (false) // dead
       return GAME_OVER_STATE;
     else if (won)
@@ -461,6 +480,9 @@ namespace state
 										     apply(nail.position + 0.02f),
 										     0},
 										    -nail.speed});
+    
+    displayData.bloodPos = bloodPos;
+    displayData.bloodSpeed = bloodSpeed;
   }
 
   claws::vect<float, 2u> GameState::getOffset() const noexcept
@@ -503,6 +525,13 @@ namespace state
 					    }), waspToWaspNailers.end());
     if (index >= 3) // avoid reusing player segments
       reusableSegments.emplace_back(index);
+  }
+
+  void GameState::spawnBlood(claws::vect<float, 2u> position, claws::vect<float, 2u> speed)
+  {
+    bloodPos[bloodSpawnIndex] = position;
+    bloodSpeed[bloodSpawnIndex] = speed;
+    ++bloodSpawnIndex %= bloodPos.size();
   }
 
   void GameState::looseGun(std::unique_ptr<Gun> &&gun)

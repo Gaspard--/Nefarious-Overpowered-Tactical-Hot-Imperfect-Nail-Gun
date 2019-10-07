@@ -161,6 +161,7 @@ void Wasp::update(state::GameState &gameState) noexcept
 	  auto &head(gameState.getWaspSegment(getHead()));
 	  auto force(springForce(head.position - victimPart.position, head.speed - victimPart.speed, 0.0f));
 
+	  gameState.spawnBlood(victimPart.position, (claws::vect<float, 2u>((float(rand() & 3) - 1.5f) * 0.05f, 0.06f)) * 0.1f);
 	  applyForce(head, victimPart, force);
 
 	  float mass = victimPart.getMass();
@@ -168,6 +169,8 @@ void Wasp::update(state::GameState &gameState) noexcept
 	  float eaten = mass * 0.1f;
 	  if (victimPart.radius < 0.001f || victimPart.radius < head.radius * 0.5f) {
 	    eaten = mass;
+	    for (int poi = 0; poi < 8; ++poi)
+	      gameState.spawnBlood(victimPart.position, (claws::vect<float, 2u>((float(rand() & 3) - 1.5f) * 0.05f, 0.06f)) * 0.01f);
 	    gameState.removeWaspSegment(victim);
 	  } else if (victimPart.radius < head.radius) {
 	    eaten = mass * 0.1f;
@@ -176,9 +179,13 @@ void Wasp::update(state::GameState &gameState) noexcept
 	  }
 
 	  victimPart.setMass(mass - eaten);
-	  head.setMass(head.getMass() + eaten);
+	  head.setMass(head.getMass() + eaten * 0.9f);
 	  inBelly += eaten;
   	}
+      victims.erase(std::remove_if(victims.begin(), victims.end(), [&](auto &victim)
+								   {
+								     return gameState.getWaspSegment(victim).unused;
+								   }), victims.end());
     }
 
   jumpCooldown -= !!jumpCooldown;

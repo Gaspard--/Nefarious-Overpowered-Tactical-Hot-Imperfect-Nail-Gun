@@ -118,6 +118,7 @@ namespace opengl
     return (program);
   }
   
+  void setUniform(float data, char const *target, Program program);
   void setUniform(claws::vect<float, 2> const data, char const *target, Program program);
   void setUniform(claws::vect<float, 3> const data, char const *target, Program program);
   void setUniform(claws::vect<float, 4> const data, char const *target, Program program);

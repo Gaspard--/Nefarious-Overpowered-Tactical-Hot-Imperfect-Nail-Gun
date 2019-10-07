@@ -41,6 +41,8 @@ inline Animation getAnimation()
     case SpriteId::Target:
       return loadAnim("resources/target.bmp", 1);
       break;
+    case SpriteId::Blood:
+      return loadAnim("resources/blood.png", 1);
     case SpriteId::Gore:
       return loadAnim("resources/Gore-spriteSheet.bmp", 3);
     case SpriteId::Back:

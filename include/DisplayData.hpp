@@ -24,6 +24,8 @@ struct ColorInfo
   claws::vect<float, 4u> color;
 };
 
+static constexpr uint32_t bloodCount = 256;
+
 struct DisplayData
 {
   float timer;
@@ -41,4 +43,6 @@ struct DisplayData
   claws::vect<int, 2> mapOffset;
   claws::vect<int, 2> mapSize;
   std::vector<TileId> mapData;
+  std::vector<claws::vect<float, 2>> bloodPos;
+  std::vector<claws::vect<float, 2>> bloodSpeed;
 };

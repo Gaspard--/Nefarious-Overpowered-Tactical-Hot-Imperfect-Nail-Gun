@@ -46,6 +46,16 @@ namespace state
     std::vector<WaspToWaspNailer> waspToWaspNailers;
     std::vector<std::unique_ptr<Wasp>> wasps;
     std::vector<std::unique_ptr<Gun>> guns;
+
+    // blood related fields
+    std::vector<claws::vect<float, 2u>> bloodPos;
+    std::vector<claws::vect<float, 2u>> bloodSpeed;
+    size_t bloodSpawnIndex{0u};
+
+    void ai();
+    void terrainCheck();
+    void collisionCheck();
+
   public:
     GameState();
     ~GameState() noexcept;
@@ -56,6 +66,8 @@ namespace state
     void checkEvents(input::Input& input) override;
     void getObjectsToRender(DisplayData &display) override;
 
+    void spawnBlood(claws::vect<float, 2u> position, claws::vect<float, 2u> speed);
+    
     float getGameSpeed();
 
     uint32_t addSegment(WaspSegment &&waspSegment);
@@ -73,8 +85,5 @@ namespace state
     claws::vect<float, 2u> getOffset() const noexcept;
     float getZoom() const noexcept;
 
-    void ai();
-    void terrainCheck();
-    void collisionCheck();
   };
 }

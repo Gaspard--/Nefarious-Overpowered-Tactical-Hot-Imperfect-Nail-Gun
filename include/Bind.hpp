@@ -10,6 +10,7 @@ private:
   T t;
 public:
   Bind(T t)
+    : t(t)
   {
     t.bind();
   }

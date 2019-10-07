@@ -45,7 +45,7 @@ namespace opengl
     glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len);
     std::unique_ptr<GLchar[]> log(new GLchar[len + 1]);
 
-    log[len + 1] = 0; // safety
+    log[len] = 0; // safety
     glGetShaderInfoLog(shader, len, nullptr, &log[0]);
     throw std::runtime_error(std::string("Compilation failed for ")
 			     + ((shadertype == GL_VERTEX_SHADER) ?
@@ -61,7 +61,7 @@ namespace opengl
     std::string log;
 
     glGetProgramiv(program, GL_INFO_LOG_LENGTH, &len);
-    log.reserve(static_cast<unsigned int>(len));
+    log.resize(static_cast<unsigned int>(len));
     glGetProgramInfoLog(program, len, NULL, &log[0]);
     throw std::runtime_error("link failure: " + log);
   }
@@ -322,6 +322,11 @@ namespace opengl
   void setUniform(claws::vect<float, 4> const data, char const *target, Program program)
   {
     glUniform4f(glGetUniformLocation(program, target), data[0], data[1], data[2], data[3]);
+  }
+
+  void setUniform(float data, char const *target, Program program)
+  {
+    glUniform1f(glGetUniformLocation(program, target), data);
   }
 
   void setUniform(int const data, char const *target, Program program)

@@ -26,6 +26,8 @@ struct GlfwContext
 
   std::unique_ptr<GLFWwindow, decltype(&glfwDestroyWindow)> createWindow(std::array<unsigned int, 2u> dim, std::string name) const
   {
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     std::unique_ptr<GLFWwindow, decltype(&glfwDestroyWindow)>
       window(glfwCreateWindow(static_cast<int>(dim[0]), static_cast<int>(dim[1]), name.c_str(), nullptr, nullptr), &glfwDestroyWindow);
 
@@ -34,9 +36,9 @@ struct GlfwContext
     glfwMakeContextCurrent(window.get());
     glfwSwapInterval(1);
     if (gl3wInit())
-      throw std::runtime_error("opengl: failed to initialize 3.0 bindings");
-    if (!gl3wIsSupported(3, 0))
-      throw std::runtime_error("opengl: Opengl 3.0 not supported");
+      throw std::runtime_error("opengl: failed to initialize 3.1 bindings");
+    if (!gl3wIsSupported(3, 1))
+      throw std::runtime_error("opengl: Opengl 3.1 not supported");
     return window;
   }
 };

@@ -16,10 +16,14 @@ class Display
   opengl::RenderContext rectContext;
   opengl::RenderContext textContext;
   opengl::RenderContext bulletContext;
+  opengl::RenderContext bloodContext;
   opengl::Buffer textureBuffer;
   opengl::Buffer rectBuffer;
   opengl::Buffer textBuffer;
   opengl::Buffer bulletBuffer;
+  opengl::Buffer quadBuffer;
+  opengl::Buffer bloodBuffer;
+  opengl::Buffer bloodSpeedBuffer;
   claws::vect<uint32_t, 2u> size{0u, 0u};
   claws::vect<float, 2u> dim{1.0f, 0.0f};
   SpriteManager spriteManager;
@@ -35,6 +39,7 @@ class Display
   void renderHud(float bigWaspSize, uint32_t score, float heat, std::string const &strTime, float time);
   void renderGameOver(uint32_t score, std::string const &strTime, bool win);
   void renderTerrain(DisplayData const &displayData);
+  void renderBlood(DisplayData const &displayData);
   void renderDeadScreen(const std::vector<std::pair<std::string, std::string>>& fellows);
   void renderBack(float timer);
 

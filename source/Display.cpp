@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <cassert>
 
 inline opengl::RenderContext contextFromFiles(std::string name)
 {
@@ -34,6 +35,7 @@ Display::Display(GLFWwindow &window)
   , rectContext(contextFromFiles("rect"))
   , textContext(contextFromFiles("text"))
   , bulletContext(contextFromFiles("bullet"))
+  , bloodContext(contextFromFiles("blood"))
   , fontHandler("./resources/FantasqueSansMono-Regular.ttf")
 {
   {
@@ -77,6 +79,35 @@ Display::Display(GLFWwindow &window)
 
     glBindBuffer(GL_ARRAY_BUFFER, textBuffer);
     glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
+    
+    uint32_t attrib0 = textContext.program.getAttribLocation("pos");
+    uint32_t attrib1 = textContext.program.getAttribLocation("coord");
+    glEnableVertexAttribArray(attrib0);
+    glEnableVertexAttribArray(attrib1);
+    glVertexAttribPointer(attrib0, 2, GL_FLOAT, false, 4 * sizeof(float), nullptr);
+    glVertexAttribPointer(attrib1, 2, GL_FLOAT, false, 4 * sizeof(float), reinterpret_cast<void *>(2u * sizeof(float)));
+  }
+  {
+    glBindBuffer(GL_ARRAY_BUFFER, quadBuffer);
+    
+    std::array<float, 24> data{{0.0f, 0.0f,
+				0.0f, 0.0f,
+				1.0f, 0.0f,
+				1.0f, 0.0f,
+				0.0f, 1.0f,
+				0.0f, 1.0f,
+				1.0f, 0.0f,
+				1.0f, 0.0f,
+				0.0f, 1.0f,
+				0.0f, 1.0f,
+				1.0f, 1.0f,
+				1.0f, 1.0f}};
+    glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float), data.data(), GL_STATIC_DRAW);
+  }
+  {
+    Bind bind(bloodContext);
+
+    glBindBuffer(GL_ARRAY_BUFFER, quadBuffer);
 
     uint32_t attrib0 = textContext.program.getAttribLocation("pos");
     uint32_t attrib1 = textContext.program.getAttribLocation("coord");
@@ -85,6 +116,11 @@ Display::Display(GLFWwindow &window)
     glVertexAttribPointer(attrib0, 2, GL_FLOAT, false, 4 * sizeof(float), nullptr);
     glVertexAttribPointer(attrib1, 2, GL_FLOAT, false, 4 * sizeof(float), reinterpret_cast<void *>(2u * sizeof(float)));
   }
+  glBindBuffer(GL_ARRAY_BUFFER, bloodBuffer);
+  glBufferData(GL_ARRAY_BUFFER, bloodCount * 2 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+  glBindBuffer(GL_ARRAY_BUFFER, bloodSpeedBuffer);
+  glBufferData(GL_ARRAY_BUFFER, bloodCount * 2 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_BLEND);
 }
@@ -116,7 +152,7 @@ void Display::renderSingleAnim(AnimInfo const &anim, SpriteId spriteId)
     opengl::setUniform(dim, "dim", textureContext.program);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, spriteManager[spriteId].texture);
-    opengl::setUniform(0u, "tex", textureContext.program);
+    opengl::setUniform(0, "tex", textureContext.program);
     glDrawArrays(GL_TRIANGLES, 0, 6);
   }
 }
@@ -148,7 +184,7 @@ void Display::renderBack(float timer)
     opengl::setUniform(dim, "dim", textureContext.program);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, spriteManager[SpriteId::Back].texture);
-    opengl::setUniform(0u, "tex", textureContext.program);
+    opengl::setUniform(0, "tex", textureContext.program);
     glDrawArrays(GL_TRIANGLES, 0, 6);
   }
 }
@@ -190,7 +226,7 @@ void Display::renderText(std::string const &text, unsigned int fontSize, claws::
 				 glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
 				 opengl::setUniform(dim, "dim", textContext.program);
 				 opengl::setUniform(color, "textColor", textContext.program);
-				 opengl::setUniform(0u, "tex", textContext.program);
+				 opengl::setUniform(0, "tex", textContext.program);
 				 glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			       }, fontSize, step);
 }
@@ -261,7 +297,7 @@ void Display::renderAnims(std::vector<AnimInfo> const &anims, SpriteId spriteId)
     opengl::setUniform(dim, "dim", textureContext.program);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, spriteManager[spriteId].texture);
-    opengl::setUniform(0u, "tex", textureContext.program);
+    opengl::setUniform(0, "tex", textureContext.program);
     glDrawArrays(GL_TRIANGLES, 0, uint32_t(anims.size() * 6));
   }
 }
@@ -307,7 +343,7 @@ void Display::renderRotatedAnims(std::vector<RotatedAnimInfo> const &rotatedAnim
     opengl::setUniform(dim, "dim", textureContext.program);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, spriteManager[spriteId].texture);
-    opengl::setUniform(0u, "tex", textureContext.program);
+    opengl::setUniform(0, "tex", textureContext.program);
     glDrawArrays(GL_TRIANGLES, 0, uint32_t(rotatedAnims.size() * 6));
   }
 }
@@ -427,11 +463,44 @@ void Display::renderTerrain(DisplayData const &displayData)
 	opengl::setUniform(dim, "dim", textureContext.program);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, spriteManager[sprite].texture);
-	opengl::setUniform(0u, "tex", textureContext.program);
+	opengl::setUniform(0, "tex", textureContext.program);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
       }
       x = x2 - 1;
     }
+}
+
+void Display::renderBlood(DisplayData const &data)
+{
+  Bind bind(bloodContext);
+	  
+  glBindBuffer(GL_ARRAY_BUFFER, quadBuffer);
+
+  glBindBuffer(GL_UNIFORM_BUFFER, bloodBuffer);
+  glBufferSubData(GL_UNIFORM_BUFFER, 0, data.bloodPos.size() * sizeof(float) * 2, data.bloodPos.data());
+  glBindBufferRange(GL_UNIFORM_BUFFER, 0, bloodBuffer, 0, data.bloodPos.size() * sizeof(float) * 2);
+
+  glBindBuffer(GL_UNIFORM_BUFFER, bloodSpeedBuffer);
+  glBufferSubData(GL_UNIFORM_BUFFER, 0, data.bloodSpeed.size() * sizeof(float) * 2, data.bloodSpeed.data());
+  glBindBufferRange(GL_UNIFORM_BUFFER, 1, bloodSpeedBuffer, 0, data.bloodSpeed.size() * sizeof(float) * 2);
+
+  opengl::setUniform(dim, "dim", bloodContext.program);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, spriteManager[SpriteId::Blood].texture);
+  opengl::setUniform(0, "tex", bloodContext.program);
+
+  opengl::setUniform(data.zoom, "zoom", bloodContext.program);
+  opengl::setUniform(data.offset, "offset", bloodContext.program);
+
+  assert(glGetUniformBlockIndex(bloodContext.program, "BloodPosition") != GL_INVALID_INDEX);
+  glUniformBlockBinding(bloodContext.program, glGetUniformBlockIndex(bloodContext.program, "BloodPosition"), 0);
+
+  assert(glGetUniformBlockIndex(bloodContext.program, "BloodSpeed") != GL_INVALID_INDEX);
+  glUniformBlockBinding(bloodContext.program, glGetUniformBlockIndex(bloodContext.program, "BloodSpeed"), 1);
+
+  assert(glGetError() != GL_TRUE);
+
+  glDrawArraysInstanced(GL_TRIANGLES, 0, 6, bloodCount);
 }
 
 void Display::render(DisplayData const &data)
@@ -442,6 +511,7 @@ void Display::render(DisplayData const &data)
   glClear(GL_COLOR_BUFFER_BIT);
   //renderBack((data.screenShake * sin(data.screenShake) * 2.0f) * 0.003f);
   renderTerrain(data);
+  renderBlood(data);
   //renderColors({{claws::vect<float, 2u>(-1.0f, 1.0f), claws::vect<float, 2u>(1.0f, -1.0f), claws::vect<float, 4u>{data.screenShake * 0.01f, data.screenShake * 0.01f, 0.04f, 0.8f}}});
   for (size_t i(0u); i < data.anims.size(); ++i)
     if (!data.anims[i].empty())
