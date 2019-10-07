@@ -379,6 +379,9 @@ namespace state
 						       if (~nail.waspSegmentStick)
 							 {
 							   waspSegmentNailers.emplace_back(WaspSegmentNailer{nail.position - nail.speed.normalized() * getWaspSegment(nail.waspSegmentStick).radius, nail.speed, nail.waspSegmentStick});
+							   if (Wasp * wasp = getWaspSegment(nail.waspSegmentStick).wasp)
+							     wasp->nailed = true;
+							     
 							 }
 						     });
   }
@@ -594,6 +597,7 @@ namespace state
     displayData.offset = offset; // for terrain display, entities are pre-scaled
     displayData.zoom = zoom; // for terrain display, entities are pre-scaled
     displayData.timer = timer;
+    displayData.score = int(score);
     displayData.screenShake = screenShake;
     displayData.heat = wasps.front()->gun ? wasps.front()->gun->getHeat() : 0.0f;
     for (auto &waspSegment : waspSegments)
@@ -661,6 +665,12 @@ namespace state
       }
     displayData.bloodPos = bloodPos;
     displayData.bloodSpeed = bloodSpeed;
+  }
+
+  void GameState::creditScore(Wasp *wasp, float score) noexcept
+  {
+    if (wasp == wasps.front().get())
+      this->score += score;
   }
 
   claws::vect<float, 2u> GameState::getOffset() const noexcept

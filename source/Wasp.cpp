@@ -119,7 +119,7 @@ void Wasp::update(state::GameState &gameState) noexcept
 	  applyForce(waspSegment0, waspSegment1, force);
       }
     }
-  if (eating && ~getHead() && ~getBody() && ~getAbdommen())
+  if (eating && !nailed && ~getHead() && ~getBody() && ~getAbdommen())
     {
       for (auto &victim : victims)
 	{
@@ -141,9 +141,13 @@ void Wasp::update(state::GameState &gameState) noexcept
 	    gameState.removeWaspSegment(victim);
 	  // } else if (victimPart.radius < head.radius) {
 	  //   eaten = mass * 0.1f;
+	    gameState.creditScore(this, 100.0f);
 	  } else {
 	    eaten = head.getMass() * 0.0001f;
 	  }
+
+	  gameState.creditScore(this, eaten * 1000000.0f);
+
 
 	  victimPart.setMass(mass - eaten);
 	  head.setMass(head.getMass() + eaten * 0.9f);
