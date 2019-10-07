@@ -70,7 +70,7 @@ void Wasp::update(state::GameState &gameState) noexcept
     constexpr std::array<float, 3u> const ratio{{0.25f, 0.15f, 0.6f}};
     std::array<float, 3u> mass;
 
-    inBelly *= 0.995f;
+    inBelly *= 0.997f;
     float total(0.0f);
 
     for (int i(0); i < 3; ++i)

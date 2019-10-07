@@ -32,7 +32,7 @@ public:
 
     for (int i = 0; i < 2; ++i)
       {
-	center[i] = unsigned(std::max(pos[i] / tileSize, 0.0f));
+	center[i] = unsigned(std::max((pos[i] - speed[i]) / tileSize, 0.0f));
       }
 
     bool checkCorners = true;
