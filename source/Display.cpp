@@ -536,7 +536,7 @@ void Display::render(DisplayData const &data)
   // 		{dim, claws::vect<float, 2u>(1.0f, -1.0f), claws::vect<float, 4u>{0.0f, 0.0f, 0.0f, 1.0f}}});
   renderHud(666.0f, data.score, data.heat, data.stringedTime, data.timer);
   if (data.gameOverHud)
-    renderGameOver(666.0f, data.stringedTime, data.win);
+    renderGameOver(data.score, data.stringedTime, data.win);
   if (data.tuto)
     renderSingleAnim(AnimInfo{claws::vect<float, 2u>{-1.980f / 1.080f, -1.0f},
 			      claws::vect<float, 2u>{1.980f / 1.080f, 1.0f},
