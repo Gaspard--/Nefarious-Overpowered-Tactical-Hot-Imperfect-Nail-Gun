@@ -116,14 +116,12 @@ namespace state
 		      bool skipCollision = false;
 		      if (waspSegment.wasp && waspSegment.part == Part::head && waspSegment.wasp->eating)
 			{
-			  if (waspSegment.radius > otherWaspSegment.radius)
-			    waspSegment.wasp->swallow(*this, index);
+			  waspSegment.wasp->swallow(*this, index);
 			  skipCollision = true;
 			}
 		      if (otherWaspSegment.wasp && otherWaspSegment.part == Part::head && otherWaspSegment.wasp->eating)
 			{
-			  if (otherWaspSegment.radius > waspSegment.radius)
-			    otherWaspSegment.wasp->swallow(*this, i);
+			  otherWaspSegment.wasp->swallow(*this, i);
 			  skipCollision = true;
 			}
 
@@ -489,13 +487,20 @@ namespace state
   void GameState::removeWaspSegment(size_t index)
   {
     auto &segment(getWaspSegment(index));
-    if (Wasp *&wasp = segment.wasp)
-      {
-	wasp->removePart(*this, segment.part);
-	wasp = nullptr;
-      }
+    if (Wasp *wasp = segment.wasp)
+      wasp->removePart(*this, segment.part);
     segment.disableCollision = true;
     segment.unused = true;
+    waspSegmentNailers.erase(std::remove_if(waspSegmentNailers.begin(), waspSegmentNailers.end(),
+					    [&](auto &nailer)
+					    {
+					      return (nailer.waspSegmentId == index);
+					    }), waspSegmentNailers.end());
+    waspToWaspNailers.erase(std::remove_if(waspToWaspNailers.begin(), waspToWaspNailers.end(),
+					    [&](auto &nailer)
+					    {
+					      return (nailer.waspSegmentId0 == index || nailer.waspSegmentId1 == index);
+					    }), waspToWaspNailers.end());
     if (index >= 3) // avoid reusing player segments
       reusableSegments.emplace_back(index);
   }

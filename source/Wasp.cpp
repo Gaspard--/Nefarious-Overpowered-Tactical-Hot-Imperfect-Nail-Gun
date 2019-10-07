@@ -153,7 +153,7 @@ void Wasp::update(state::GameState &gameState) noexcept
 	applyForce(waspSegment0, waspSegment1, force);
       }
     }
-  if (eating && ~getHead())
+  if (eating && ~getHead() && ~getBody() && ~getAbdommen())
     {
       for (auto &victim : victims)
 	{
@@ -169,19 +169,16 @@ void Wasp::update(state::GameState &gameState) noexcept
 	  if (victimPart.radius < 0.001f || victimPart.radius < head.radius * 0.5f) {
 	    eaten = mass;
 	    gameState.removeWaspSegment(victim);
+	  } else if (victimPart.radius < head.radius) {
+	    eaten = mass * 0.1f;
+	  } else {
+	    eaten = head.getMass() * 0.05f;
 	  }
+
 	  victimPart.setMass(mass - eaten);
 	  head.setMass(head.getMass() + eaten);
 	  inBelly += eaten;
   	}
-    }
-  else
-    {
-      for (auto &victim : victims)
-	{
-	  gameState.getWaspSegment(victim).disableCollision = false;
-	}
-      victims.clear();
     }
 
   jumpCooldown -= !!jumpCooldown;
@@ -233,15 +230,8 @@ void Wasp::swallow(state::GameState &gameState, uint32_t index)
 {
   if (dead)
     return;
-  // gameState.getWaspSegment(getHead()).radius = std::pow(std::pow(gameState.getWaspSegment(getHead()).radius, 3.0f)
-  // 							+ std::pow(gameState.getWaspSegment(index).radius, 3.0f), 1.0f / 3.0f);
-  // if (gameState.getWaspSegment(index).wasp)
   victims.emplace_back(index);
-  // TODO: mark as unused
-  //  else
-  //    gameState.getWaspSegment(index).unused = true;
   gameState.getWaspSegment(index).disableCollision = true;
-  // gameState.getWaspSegment(index).radius = 0.0f;
 }
 
 void Wasp::die(state::GameState &gameState) noexcept
@@ -255,13 +245,19 @@ void Wasp::die(state::GameState &gameState) noexcept
 	auto segment(gameState.getWaspSegment(waspSegment));
 
 	removePart(gameState, segment.part);
-	segment.wasp = nullptr;
       }
 }
 
 void Wasp::removePart(state::GameState &gameState, Part segment) noexcept
 {
+  gameState.getWaspSegment(waspSegments[size_t(segment)]).wasp = nullptr;
   waspSegments[size_t(segment)] = ~0u;
+  for (auto &victim : victims)
+    {
+      gameState.getWaspSegment(victim).disableCollision = false;
+    }
+  victims.clear();
+
   if ((!~waspSegments[0] && !~waspSegments[2]) || !~waspSegments[1])
     die(gameState);
 }
