@@ -197,7 +197,7 @@ void Wasp::fly(state::GameState &gameState) noexcept
     {
       jumpCooldown = 30;
       --flyPower;
-      gameState.getWaspSegment(getBody()).speed[1] += 0.0075f;
+      gameState.getWaspSegment(getBody()).speed[1] += 0.02f;
     }
 }
 

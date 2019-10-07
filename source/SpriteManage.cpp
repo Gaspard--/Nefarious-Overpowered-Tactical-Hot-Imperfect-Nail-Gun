@@ -26,6 +26,12 @@ inline Animation getAnimation()
       return loadAnim("resources/wasp body.png", 1);
     case SpriteId::WaspHead:
       return loadAnim("resources/wasp head.png", 1);
+    case SpriteId::WaspAbdomenEnemy:
+      return loadAnim("resources/wasp abdomen enemy.png", 1);
+    case SpriteId::WaspBodyEnemy:
+      return loadAnim("resources/wasp body enemy.png", 1);
+    case SpriteId::WaspHeadEnemy:
+      return loadAnim("resources/wasp head enemy.png", 1);
     case SpriteId::WaspLegs:
       return loadAnim("resources/wasp legs.bmp", 1); // TODO
     case SpriteId::WaspWing:
