@@ -7,7 +7,7 @@ namespace guns
   {
     class Nothing : public Gun
     {
-      uint16_t heat{0};
+      int16_t heat{0};
       uint8_t counter{0};
       bool toHot{false};
       bool wasUsed{false};
@@ -25,7 +25,7 @@ namespace guns
 	if (!(++counter %= (1 + 10 / (heat / 24 + 1))))
 	  {
 	    heat += 10 / (heat / 24 + 1) + 2;
-	    if (heat >= 480)
+	    if (heat >= 380)
 	      toHot = true;
 	    dir += claws::vect<float, 2u>(float(rand() & 3) - 1.5f, float(rand() & 3) - 1.5f) * 0.01f;
 	    gameState.addNail(position, dir * 0.06f, wasp);
@@ -38,7 +38,9 @@ namespace guns
       {
 	toHot &= heat > 0;
 	if (!wasUsed)
-	  heat -= !!heat + toHot;
+	  heat -= !!heat + !toHot * 2;
+	if (heat < 0)
+	  heat = 0;
 	position += speed;
 	speed[1] -= 0.001f;
 	wasUsed = false;
@@ -46,7 +48,7 @@ namespace guns
 
       virtual float getHeat() override final
       {
-	return float(heat) / 480.0f;
+	return float(heat) / 380.0f;
       }
 
     };

@@ -79,7 +79,7 @@ Display::Display(GLFWwindow &window)
 
     glBindBuffer(GL_ARRAY_BUFFER, textBuffer);
     glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
-    
+
     uint32_t attrib0 = textContext.program.getAttribLocation("pos");
     uint32_t attrib1 = textContext.program.getAttribLocation("coord");
     glEnableVertexAttribArray(attrib0);
@@ -89,7 +89,7 @@ Display::Display(GLFWwindow &window)
   }
   {
     glBindBuffer(GL_ARRAY_BUFFER, quadBuffer);
-    
+
     std::array<float, 24> data{{0.0f, 0.0f,
 				0.0f, 0.0f,
 				1.0f, 0.0f,
@@ -352,23 +352,33 @@ void Display::renderRotatedAnims(std::vector<RotatedAnimInfo> const &rotatedAnim
 void Display::renderHud(float bigWaspSize, uint32_t score, float heat, std::string const &strTime, float timer)
 {
   (void)score;
-  renderText("  Size  : " + std::to_string(uint32_t(bigWaspSize * 1000.0f)), 400, {0.05f, 0.05f}, {1.0f, 0.855f}, {1.0f, 1.0f, 1.0f});
-  renderText("  Hps   : " + std::to_string(666), 400, {0.05f, 0.05f}, {1.0f, 0.755f}, {1.0f, 1.0f, 1.0f});
+  (void)bigWaspSize;
+  //renderText("  Size  : " + std::to_string(uint32_t(bigWaspSize * 1000.0f)), 400, {0.05f, 0.05f}, {1.0f, 0.855f}, {1.0f, 1.0f, 1.0f});
+  //renderText("  Hps   : " + std::to_string(666), 400, {0.05f, 0.05f}, {1.0f, 0.755f}, {1.0f, 1.0f, 1.0f});
   //renderText("  Score : " + std::to_string(score), 400, {0.05f, 0.05f}, {1.0f, 0.655f}, {1.0f, 1.0f, 1.0f});
-  renderText("  Gun heat : " + std::to_string(int(heat * 100.0f)) + "%", 400, {0.05f, 0.05f}, {1.0f, 0.655f}, {1.0f, 1.0f, 1.0f});
-  renderText("  Time  : " + strTime, 400, {0.05f, 0.05f}, {1.0f, 0.555f}, {1.0f, 1.0f, 1.0f});
-  auto secondTime((uint32_t(timer) * Logic::getTickTime().count()) / 1000000);
-  std::string inGameTime;
+  std::string progress_bar{"["};
+  for (unsigned i = 0 ; i < 10 ; ++i) {
+    if (i < heat * 10.f)
+      progress_bar.push_back('>');
+    else
+      progress_bar.push_back(' ');
+  }
+  progress_bar.push_back(']');
+  renderText("  Gun heat : ", 400, {0.05f, 0.05f}, {1.0f, 0.855f}, {1.0f, 1.0f, 1.0f});
+  renderText(progress_bar, 400, {0.05f, 0.05f}, {1.35f, 0.855f}, {1.0f, 1.0f - heat, 1.0f - heat});
+  renderText("  Time  : " + strTime, 400, {0.05f, 0.05f}, {1.0f, 0.755f}, {1.0f, 1.0f, 1.0f});
+  // auto secondTime((uint32_t(timer) * Logic::getTickTime().count()) / 1000000);
+  // std::string inGameTime;
 
-  if (secondTime / 60 >= 10)
-    inGameTime = std::to_string(secondTime / 60) + " m ";
-  else if (secondTime / 60)
-    inGameTime = "0" + std::to_string(secondTime / 60) + " m ";
-  if ((secondTime) % 60 >= 10)
-    inGameTime += std::to_string((secondTime) % 60) + " s";
-  else
-    inGameTime += "0" + std::to_string((secondTime) % 60) + " s";
-  renderText("  In game time : " + inGameTime, 400, {0.05f, 0.05f}, {1.0f, 0.455f}, {1.0f, 1.0f, 1.0f});
+  // if (secondTime / 60 >= 10)
+  //   inGameTime = std::to_string(secondTime / 60) + " m ";
+  // else if (secondTime / 60)
+  //   inGameTime = "0" + std::to_string(secondTime / 60) + " m ";
+  // if ((secondTime) % 60 >= 10)
+  //   inGameTime += std::to_string((secondTime) % 60) + " s";
+  // else
+  //   inGameTime += "0" + std::to_string((secondTime) % 60) + " s";
+  // renderText("  In game time : " + inGameTime, 400, {0.05f, 0.05f}, {1.0f, 0.455f}, {1.0f, 1.0f, 1.0f});
 
 }
 
@@ -440,7 +450,7 @@ void Display::renderTerrain(DisplayData const &displayData)
       auto max((pos + claws::vect<float, 2u>(float(x2 - x), 1.0f) * tileSize) * displayData.zoom);
       {
 	Bind bind(textureContext);
-	  
+
 	glBindBuffer(GL_ARRAY_BUFFER, textureBuffer);
 
 	std::array<float, 6 * 4> data;
@@ -473,7 +483,7 @@ void Display::renderTerrain(DisplayData const &displayData)
 void Display::renderBlood(DisplayData const &data)
 {
   Bind bind(bloodContext);
-	  
+
   glBindBuffer(GL_ARRAY_BUFFER, quadBuffer);
 
   glBindBuffer(GL_UNIFORM_BUFFER, bloodBuffer);
