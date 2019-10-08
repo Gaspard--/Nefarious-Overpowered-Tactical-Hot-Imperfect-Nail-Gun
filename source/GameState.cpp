@@ -189,7 +189,7 @@ namespace state
 	  aiInfo.noTarget = true;
 	}
 	if (!~wasp->getHead())
-	  return ;
+	  continue ;
 	auto &head(getWaspSegment(wasp->getHead()));
 
 	claws::vect<int32_t, 2> min;
