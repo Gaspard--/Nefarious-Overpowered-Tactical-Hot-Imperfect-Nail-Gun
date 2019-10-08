@@ -446,8 +446,10 @@ namespace state
 	  player->fire(*this, (target / getZoom() - getOffset()));
 	player->eating = eating;
 	getWaspSegment(player->getBody()).radius *= 0.9998f;
-	getWaspSegment(player->getHead()).radius *= 0.9998f;
-	getWaspSegment(player->getAbdommen()).radius *= 0.9998f;
+	if (~player->getHead())
+	  getWaspSegment(player->getHead()).radius *= 0.9998f;
+	if (~player->getAbdommen())
+	  getWaspSegment(player->getAbdommen()).radius *= 0.9998f;
       }
     for (auto &waspSegment : waspSegments)
       waspSegment.update();
