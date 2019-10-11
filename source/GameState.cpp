@@ -300,7 +300,7 @@ namespace state
     {
       float angle = float(rand());
 
-      auto pos = claws::vect<float, 2u>(std::sin(angle), std::cos(angle)) * 3.0f * zoom - offset;
+      auto pos = claws::vect<float, 2u>(std::sin(angle), std::cos(angle)) * 3.0f / zoom - offset;
 
       float radius = float(unsigned (rand()) % 100u) * 0.01f;
 
