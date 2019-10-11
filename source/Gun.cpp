@@ -22,9 +22,9 @@ namespace guns
 	if (toHot)
 	  return false;
 	wasUsed = true;
-	if (!(++counter %= (1 + 10 / (heat / 24 + 1))))
+	if (!(++counter %= uint8_t(1 + 10 / (heat / 24 + 1))))
 	  {
-	    heat += 10 / (heat / 24 + 1) + 2;
+	    heat = int16_t(heat + (10 / (heat / 24 + 1) + 2));
 	    if (heat >= 380)
 	      toHot = true;
 	    dir += claws::vect<float, 2u>(float(rand() & 3) - 1.5f, float(rand() & 3) - 1.5f) * 0.01f;
@@ -38,7 +38,7 @@ namespace guns
       {
 	toHot &= heat > 0;
 	if (!wasUsed)
-	  heat -= !!heat + !toHot * 2;
+	  heat = int16_t(heat - !!heat + !toHot * 2);
 	if (heat < 0)
 	  heat = 0;
 	position += speed;

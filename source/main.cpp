@@ -14,7 +14,7 @@
 
 int main()
 {
-  srand(time(nullptr));
+  srand(unsigned(time(nullptr)));
 // #ifndef NDEBUG
 // feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 // #endif
