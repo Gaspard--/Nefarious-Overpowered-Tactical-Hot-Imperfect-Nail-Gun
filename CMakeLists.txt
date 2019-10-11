@@ -16,7 +16,7 @@ set(RESOURCES_DIRECTORY "resources")
 set(SHADERS_DIRECTORY "shaders")
 
 if (WIN32)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17 -DNOMINMAX")
 else()
   set(CMAKE_CXX_STANDARD 17)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -66,6 +66,7 @@ if (WIN32)
                         C:/glfw-3.2.1.bin.WIN32/lib-vc2015/glfw3.lib
                         C:/freetype-windows-binaries-2.7.1/win32/freetype271.lib
                         C:/SFML-2.4.2/lib/sfml-audio.lib
+			C:/lib/libpng.lib
                         opengl32.lib
   )
 else()
