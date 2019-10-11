@@ -66,7 +66,8 @@ if (WIN32)
                         C:/glfw-3.2.1.bin.WIN32/lib-vc2015/glfw3.lib
                         C:/freetype-windows-binaries-2.7.1/win32/freetype271.lib
                         C:/SFML-2.4.2/lib/sfml-audio.lib
-			C:/lib/libpng.lib
+						C:/lib/libpng16.lib
+						C:/lib/zlib.lib
                         opengl32.lib
   )
 else()
