@@ -300,7 +300,7 @@ namespace state
     {
       float angle = float(rand());
 
-      auto pos = claws::vect<float, 2u>(std::sin(angle), std::cos(angle)) * 3.0f * zoom - offset;
+      auto pos = claws::vect<float, 2u>(std::sin(angle), std::cos(angle)) * 3.0f / zoom - offset;
 
       float radius = float(unsigned (rand()) % 100u) * 0.01f;
 
@@ -308,10 +308,9 @@ namespace state
       radius += 0.01f;
 
       {
-	bool fail = false;
 	for (int x = int(std::floor((pos[0] - radius * 2.0f) / tileSize)); float(x) * tileSize <= pos[0] + radius * 2.0f; ++x)
 	  for (int y = int(std::floor((pos[1] - radius * 2.0f) / tileSize)); float(y) * tileSize <= pos[1] + radius * 2.0f; ++y)
-	    if (map.getTile({x, y}) != TileId::Empty)
+	    if (map.getTile({unsigned(x), unsigned(y)}) != TileId::Empty)
 	      goto fail;
       }
       {
@@ -509,7 +508,7 @@ namespace state
     for (size_t i(0u); i != bloodPos.size(); ++i)
       {
 	map.collision(bloodPos[i], bloodSpeed[i], 0.0f,
-		      [&](claws::vect<float, 2u> collisionPoint)
+		      [&](claws::vect<float, 2u> const &)
 		      {
 			bloodSpeed[i] *= 0.5f;
 		      });

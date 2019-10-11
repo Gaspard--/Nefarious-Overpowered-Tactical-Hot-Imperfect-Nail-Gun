@@ -208,12 +208,11 @@ void Wasp::pickUpGun(std::unique_ptr<Gun> &&gun)
   this->gun.swap(gun);
 }
 
-void Wasp::swallow(state::GameState &gameState, uint32_t index)
+void Wasp::swallow(state::GameState &, uint32_t index)
 {
   if (dead)
     return;
   victims.emplace_back(index);
-  //gameState.getWaspSegment(index).disableCollision = true;
 }
 
 void Wasp::die(state::GameState &gameState) noexcept
@@ -242,10 +241,6 @@ void Wasp::removePart(state::GameState &gameState, Part segment) noexcept
 
   gameState.getWaspSegment(waspSegments[size_t(segment)]).wasp = nullptr;
   waspSegments[size_t(segment)] = ~0u;
-  for (auto &victim : victims)
-    {
-      //gameState.getWaspSegment(victim).disableCollision = false;
-    }
   victims.clear();
 
   if ((!~waspSegments[0] && !~waspSegments[2]) || !~waspSegments[1])

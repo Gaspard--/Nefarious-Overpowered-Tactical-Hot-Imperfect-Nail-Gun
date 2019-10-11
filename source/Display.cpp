@@ -349,7 +349,7 @@ void Display::renderRotatedAnims(std::vector<RotatedAnimInfo> const &rotatedAnim
 }
 
 
-void Display::renderHud(float bigWaspSize, uint32_t score, float heat, std::string const &strTime, float timer)
+void Display::renderHud(float bigWaspSize, uint32_t score, float heat, std::string const &strTime, float)
 {
   (void)score;
   (void)bigWaspSize;
@@ -358,7 +358,7 @@ void Display::renderHud(float bigWaspSize, uint32_t score, float heat, std::stri
   renderText("  Score : " + std::to_string(score), 400, {0.05f, 0.05f}, {1.0f, 0.655f}, {1.0f, 1.0f, 1.0f});
   std::string progress_bar{"["};
   for (unsigned i = 0 ; i < 10 ; ++i) {
-    if (i < heat * 10.f)
+    if (float(i) < heat * 10.f)
       progress_bar.push_back('>');
     else
       progress_bar.push_back(' ');

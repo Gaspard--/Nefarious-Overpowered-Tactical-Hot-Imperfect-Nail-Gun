@@ -24,16 +24,6 @@ namespace loaders
 	| static_cast<unsigned char>(bytes[0]);
     }
 
-    void dumpRawTexture(char const *data, std::array<unsigned int, 2u> const &dim)
-    {
-      for (unsigned y = 0 ; y < dim[1] ; ++y) {
-	for (unsigned x = 0 ; x < dim[0] * 4 ; x += 4) {
-	  std::cout  << std::hex << bytesToInt(&data[y * dim[0] * 4 + x]) << " ";
-	}
-	std::cout << std::endl;
-      }
-    }
-
     opengl::Texture convertToTexture(char const *data, std::array<unsigned int, 2u> const &dim)
     {
       opengl::Texture texture;
